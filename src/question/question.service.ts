@@ -10,7 +10,15 @@ export class QuestionService {
     private questionRepository: Repository<Question>,
   ) {}
 
+  clearRepository() {
+    this.questionRepository.clear();
+  }
+
+  find(query): Promise<Question[]> {
+    return this.questionRepository.find(query);
+  }
+
   findById(id: number): Promise<Question | null> {
-    return this.questionRepository.findOneBy({ id });
+    return this.questionRepository.findOneBy({ quiz: { id } });
   }
 }

@@ -17,6 +17,6 @@ type QuizDto {
   createdBy: String!
   id: Int!
   name: String!
-  questionFromQuiz: QuestionDto!
+  question: QuestionDto!
   questions: [QuestionDto!]!
 }

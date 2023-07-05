@@ -12,6 +12,9 @@ export class QuestionDto {
   @Field()
   type: 'single' | 'multiple' | 'plain' | 'sort';
 
+  @Field()
+  possibleScore: number;
+
   @Field((type) => [QuizDto])
   quiz: QuizDto;
 }

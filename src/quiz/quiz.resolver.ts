@@ -29,6 +29,13 @@ export class QuizResolver {
   @ResolveField(() => QuestionDto)
   question(@Parent() quiz: QuizDto) {
     const quizId = quiz.id;
-    return this.questionService.findById(quizId);
+
+    const questionObjects = this.questionService.find({ quiz: { id: quizId } });
+
+    questionObjects.then((data) => {
+      console.log(data);
+    });
+
+    return questionObjects;
   }
 }
