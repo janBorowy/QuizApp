@@ -1,0 +1,22 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Query {
+  quiz(id: Int!): QuizDto!
+}
+
+type QuestionDto {
+  description: String!
+  id: Int!
+  quiz: [QuizDto!]!
+  type: String!
+}
+
+type QuizDto {
+  createdBy: String!
+  id: Int!
+  name: String!
+  questionFromQuiz: QuestionDto!
+  questions: [QuestionDto!]!
+}

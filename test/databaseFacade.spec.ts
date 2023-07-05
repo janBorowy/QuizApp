@@ -1,0 +1,3 @@
+const testingDatabaseConnection = 'test';
+
+describe();
