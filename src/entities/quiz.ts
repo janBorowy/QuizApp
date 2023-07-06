@@ -21,6 +21,7 @@ export class Quiz {
 
   @OneToMany(() => Question, (question) => question.quiz, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   questions: Question[];
 }
