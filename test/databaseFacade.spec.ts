@@ -8,7 +8,6 @@ import { loadTestQuizRepositoryImplementation } from './quiz.repository.test.imp
 import {
   anotherExampleQuiz,
   exampleQuiz,
-  exampleQuizNoId,
   exampleQuizWithId1,
 } from './testing.data';
 import { RecordNotFoundError } from '../src/exceptions/recordNotFound.error';
@@ -29,6 +28,7 @@ describe('DatabaseFacade', () => {
             findOneBy: jest.fn(),
             save: jest.fn(),
             delete: jest.fn(),
+            create: jest.fn(),
           },
         },
       ],
@@ -72,41 +72,6 @@ describe('DatabaseFacade', () => {
     expect(anotherSavedQuiz).toEqual(anotherExampleQuiz);
     expect(await databaseFacade.findQuizById(2)).not.toBeNull();
     expect(await databaseFacade.findQuizById(2)).toEqual(anotherExampleQuiz);
-  });
-
-  it('Should save properly without given id', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
-
-    const savedQuiz = await databaseFacade.saveQuiz(exampleQuizNoId);
-    expect(savedQuiz).not.toBeNull();
-    expect(savedQuiz.id).toEqual(0);
-    expect(await databaseFacade.findQuizById(savedQuiz.id)).toEqual(savedQuiz);
-  });
-
-  it('Should save properly and update', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
-
-    const quizFromDatabase = await databaseFacade.saveOrUpdateQuiz(exampleQuiz);
-    expect(quizFromDatabase).toEqual(exampleQuiz);
-    expect(await databaseFacade.findQuizById(1)).not.toBeNull();
-    expect(await databaseFacade.findQuizById(1)).toEqual(exampleQuiz);
-
-    const quizSequelFromDatabase = await databaseFacade.saveOrUpdateQuiz(
-      exampleQuizWithId1,
-    );
-    expect(quizSequelFromDatabase).toEqual(exampleQuizWithId1);
-    expect(await databaseFacade.findQuizById(1)).not.toBeNull();
-    expect(await databaseFacade.findQuizById(1)).toEqual(exampleQuizWithId1);
-  });
-
-  it('Should throw exception when trying to create quiz with existing id', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
-
-    await databaseFacade.saveQuiz(exampleQuiz);
-
-    await expect(() => {
-      return databaseFacade.saveQuiz(exampleQuiz);
-    }).rejects.toThrow(RecordAlreadyExistsError);
   });
 
   it('Should delete record properly', async () => {

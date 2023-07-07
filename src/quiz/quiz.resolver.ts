@@ -9,12 +9,12 @@ import {
 } from '@nestjs/graphql';
 import { Inject } from '@nestjs/common';
 import { QuizService } from './quiz.service';
-import { QuizDto } from '../dtos/quiz.dto';
-import { QuestionDto } from '../dtos/question.dto';
 import { QuestionService } from '../question/question.service';
 import { Quiz } from '../entities/quiz';
+import { Question } from '../entities/question';
+import { QuizInput } from './types/quiz.input';
 
-@Resolver((of) => QuizDto)
+@Resolver((of) => Quiz)
 export class QuizResolver {
   constructor(
     @Inject(QuizService)
@@ -23,35 +23,9 @@ export class QuizResolver {
     private questionService: QuestionService,
   ) {}
 
-  @Query((returns) => QuizDto)
-  async quiz(@Args('id', { type: () => Int }) id: number) {
-    return (await this.quizService.findQuizById(id)).quizDto;
-  }
-
-  @Mutation(() => QuizDto)
-  async createQuiz(
-    @Args('title', { type: () => String }) quizTitle: string,
-    @Args('createdBy', { type: () => String }) quizCreatedBy: string,
-  ) {
-    const quizDto: QuizDto = {
-      title: quizTitle,
-      createdBy: quizCreatedBy,
-      questions: [],
-    };
-    const response = await this.quizService.createNewQuiz(quizDto);
-    return response.quizDto;
-  }
-
-  @ResolveField(() => QuestionDto)
-  question(@Parent() quiz: QuizDto) {
-    const quizId = quiz.id;
-
-    const questionObjects = this.questionService.find({ quiz: { id: quizId } });
-
-    questionObjects.then((data) => {
-      console.log(data);
-    });
-
-    return questionObjects;
+  @Mutation((returns) => Quiz)
+  async addQuiz(@Args('quiz') quizInput: QuizInput): Promise<Quiz> {
+    const quiz = this.quizService.createNewQuiz(quizInput);
+    return (await quiz).quiz;
   }
 }

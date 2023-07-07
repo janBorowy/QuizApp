@@ -1,27 +1,45 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  RelationId,
+} from 'typeorm';
 import { Quiz } from './quiz';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @Entity()
+@ObjectType()
 export class Question {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @Column({
     nullable: false,
   })
   description: string;
 
+  @Field(() => QuestionType)
   @Column({
     nullable: false,
-    default: '',
   })
-  type: 'single' | 'multiple' | 'plain' | 'sort';
+  type: QuestionType;
 
+  @Field()
   @Column({
     name: 'possible_score',
   })
   possibleScore: number;
 
   @ManyToOne(() => Quiz, (quiz) => quiz.questions)
+  @RelationId((question: Question) => question.quiz)
   quiz: Quiz;
+}
+
+export enum QuestionType {
+  SINGLE,
+  MULTIPLE,
+  PLAIN,
+  SORT,
 }

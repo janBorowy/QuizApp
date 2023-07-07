@@ -13,7 +13,7 @@ import {
 import { find } from 'rxjs';
 
 async function findQuizById(id: number, quizService: QuizService) {
-  return (await quizService.findQuizById(id)).quizDto;
+  return (await quizService.findQuizById(id)).quiz;
 }
 
 describe('QuizService', () => {
@@ -33,6 +33,7 @@ describe('QuizService', () => {
             findOneBy: jest.fn(),
             save: jest.fn(),
             delete: jest.fn(),
+            create: jest.fn(),
           },
         },
       ],
@@ -51,7 +52,7 @@ describe('QuizService', () => {
     const savedQuiz = await quizRepository.save(exampleQuiz);
 
     const response = await quizService.findQuizById(savedQuiz.id);
-    expect(response.quizDto).toEqual(savedQuiz);
+    expect(response.quiz).toEqual(savedQuiz);
     expect(response.responseStatus).toEqual(ResponseStatus.SUCCESS);
     expect(response.action).toEqual(QuizServiceAction.FIND);
   });
@@ -62,37 +63,8 @@ describe('QuizService', () => {
     const response = await quizService.createNewQuiz(exampleQuiz);
     expect(response.responseStatus).toEqual(ResponseStatus.SUCCESS);
     expect(response.action).toEqual(QuizServiceAction.CREATE);
-    expect(await findQuizById(response.quizDto.id, quizService)).toEqual(
-      response.quizDto,
-    );
-  });
-
-  it('Should not allow creating quiz that exists', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
-
-    const response = await quizService.createNewQuiz(exampleQuiz);
-    const shouldFailResponse = await quizService.createNewQuiz(
-      exampleQuizWithId1,
-    );
-
-    expect(shouldFailResponse.responseStatus).toEqual(ResponseStatus.FAILURE);
-    expect(shouldFailResponse.action).toEqual(QuizServiceAction.CREATE);
-    expect(
-      await findQuizById(shouldFailResponse.quizDto.id, quizService),
-    ).toEqual(response.quizDto);
-  });
-
-  it('Should allow updating quiz', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
-
-    const response = await quizService.createNewQuiz(exampleQuiz);
-    const anotherResponse = await quizService.createOrUpdateQuiz(
-      exampleQuizWithId1,
-    );
-    expect(anotherResponse.responseStatus).toEqual(ResponseStatus.SUCCESS);
-    expect(anotherResponse.action).toEqual(QuizServiceAction.UPDATE);
-    expect(await findQuizById(anotherResponse.quizDto.id, quizService)).toEqual(
-      exampleQuizWithId1,
+    expect(await findQuizById(response.quiz.id, quizService)).toEqual(
+      response.quiz,
     );
   });
 
@@ -110,7 +82,7 @@ describe('QuizService', () => {
 
     expect(response.action).toEqual(QuizServiceAction.CREATE);
     expect(response.responseStatus).toEqual(ResponseStatus.FAILURE);
-    expect(await findQuizById(response.quizDto.id, quizService)).toBeNull();
+    expect(await findQuizById(response.quiz.id, quizService)).toBeNull();
   });
 
   it('Should delete quiz properly', async () => {
@@ -121,7 +93,7 @@ describe('QuizService', () => {
 
     expect(response.responseStatus).toEqual(ResponseStatus.SUCCESS);
     expect(response.action).toEqual(QuizServiceAction.DELETE);
-    expect(await findQuizById(saveResponse.quizDto.id, quizService)).toBeNull();
+    expect(await findQuizById(saveResponse.quiz.id, quizService)).toBeNull();
   });
 
   it('Should return proper response when trying to delete non existent quiz', async () => {

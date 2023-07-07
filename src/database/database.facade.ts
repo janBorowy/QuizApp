@@ -2,9 +2,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from '../entities/quiz';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { QuizDto } from '../dtos/quiz.dto';
-import { RecordAlreadyExistsError } from '../exceptions/recordAlreadyExists.error';
 import { RecordNotFoundError } from '../exceptions/recordNotFound.error';
+import { QuizInput } from '../quiz/types/quiz.input';
 
 @Injectable()
 export class DatabaseFacade {
@@ -13,23 +12,16 @@ export class DatabaseFacade {
     private quizRepository: Repository<Quiz>,
   ) {}
 
-  async saveQuiz(quizDto: QuizDto): Promise<QuizDto> {
-    if (
-      quizDto.id != undefined &&
-      (await this.existsQuizInDatabaseById(quizDto.id))
-    ) {
-      throw new RecordAlreadyExistsError(quizDto.id);
-    }
-    return this.saveQuizToDatabase(quizDto);
+  async saveQuiz(quiz: QuizInput): Promise<Quiz> {
+    const savedQuiz = this.quizRepository.create({
+      ...quiz,
+    });
+    return this.quizRepository.save(savedQuiz);
   }
 
-  saveOrUpdateQuiz(quizDto: QuizDto): Promise<QuizDto> {
-    return this.saveQuizToDatabase(quizDto);
-  }
-
-  findQuizById(quizId: number): Promise<QuizDto> {
-    const quizDtoPromise = this.quizRepository.findOneBy({ id: quizId });
-    return quizDtoPromise;
+  findQuizById(quizId: number): Promise<Quiz> {
+    const quizPromise = this.quizRepository.findOneBy({ id: quizId });
+    return quizPromise;
   }
 
   async deleteQuizById(quizId: number) {
@@ -37,11 +29,6 @@ export class DatabaseFacade {
       throw new RecordNotFoundError(quizId);
     }
     const deleteResult = await this.quizRepository.delete(quizId);
-  }
-
-  private saveQuizToDatabase(quizDto: QuizDto): Promise<QuizDto> {
-    const savedQuizEntityPromise = this.quizRepository.save(quizDto);
-    return savedQuizEntityPromise;
   }
 
   private async existsQuizInDatabaseById(quizId: number): Promise<boolean> {

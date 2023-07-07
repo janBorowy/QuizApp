@@ -1,17 +1,22 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Question } from './question';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @Entity()
+@ObjectType()
 export class Quiz {
+  @Field((type) => ID)
   @PrimaryGeneratedColumn()
-  id: number;
+  readonly id: number;
 
+  @Field()
   @Column({
     nullable: false,
     default: '',
   })
   title: string;
 
+  @Field()
   @Column({
     name: 'created_by',
     nullable: false,
@@ -19,6 +24,7 @@ export class Quiz {
   })
   createdBy: string;
 
+  @Field((type) => [Question])
   @OneToMany(() => Question, (question) => question.quiz, {
     cascade: true,
     onDelete: 'CASCADE',

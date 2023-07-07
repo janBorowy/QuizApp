@@ -1,9 +1,10 @@
-import { QuizDto } from '../dtos/quiz.dto';
+import { Quiz } from '../entities/quiz';
+import { QuizInput } from './types/quiz.input';
 
 export class QuizServiceResponse {
   action: QuizServiceAction;
   responseStatus: ResponseStatus;
-  quizDto: QuizDto;
+  quiz: Quiz;
   info: string;
 }
 
@@ -22,8 +23,16 @@ export class QuizServiceResponseBuilder {
     this.quizServiceResponse.responseStatus = responseStatus;
     return this;
   }
-  quizDto(quizDto: QuizDto): QuizServiceResponseBuilder {
-    this.quizServiceResponse.quizDto = quizDto;
+  quiz(quiz: QuizInput | Quiz): QuizServiceResponseBuilder {
+    if (quiz instanceof QuizInput) {
+      this.quizServiceResponse.quiz = {
+        ...quiz,
+        id: -1,
+        questions: [],
+      };
+      return this;
+    }
+    this.quizServiceResponse.quiz = quiz;
     return this;
   }
 

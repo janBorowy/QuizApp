@@ -1,6 +1,7 @@
-import { Repository, DeleteResult } from 'typeorm';
+import { Repository, DeleteResult, DeepPartial } from 'typeorm';
 import { Quiz } from '../src/entities/quiz';
 import { FindOptions } from '@nestjs/schematics';
+import { QuizInput } from '../src/quiz/types/quiz.input';
 
 interface FindOneByFindOptions extends FindOptions {
   id: number;
@@ -20,6 +21,19 @@ export function loadTestQuizRepositoryImplementation(
       id: quizId,
     };
     await repositoryContents.set(quizId, savedQuiz);
+    return savedQuiz;
+  });
+
+  jest.spyOn(quizRepository, 'create').mockImplementation((quiz: Quiz) => {
+    let quizId = quiz.id;
+    if (quizId == undefined) {
+      quizId = repositoryContents.size;
+    }
+    const savedQuiz = {
+      ...quiz,
+      id: quizId,
+      questions: [],
+    };
     return savedQuiz;
   });
 

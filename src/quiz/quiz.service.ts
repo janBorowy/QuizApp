@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DatabaseFacade } from '../database/database.facade';
-import { QuizDto } from '../dtos/quiz.dto';
 import { RecordAlreadyExistsError } from '../exceptions/recordAlreadyExists.error';
 import { QuizValidator } from './quiz.validator';
 import { ValidationStatus } from '../validation/validation.result';
@@ -11,6 +10,8 @@ import {
   QuizServiceResponseBuilder,
   ResponseStatus,
 } from './quiz.service.response';
+import { Quiz } from '../entities/quiz';
+import { QuizInput } from './types/quiz.input';
 
 @Injectable()
 export class QuizService {
@@ -22,33 +23,19 @@ export class QuizService {
   ) {}
 
   async findQuizById(quizId: number): Promise<QuizServiceResponse> {
-    const quizDto = await this.databaseFacade.findQuizById(quizId);
-    return this.createFindResponse(quizDto);
+    const quiz = await this.databaseFacade.findQuizById(quizId);
+    return this.createFindResponse(quiz);
   }
 
-  async createNewQuiz(quizDto: QuizDto): Promise<QuizServiceResponse> {
-    const validationResult = this.validateQuiz(quizDto);
+  async createNewQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {
+    const validationResult = this.validateQuiz(quiz);
     if (validationResult.status == ValidationStatus.FAILURE) {
-      this.logQuizValidationFailure(quizDto.id, validationResult.info);
       return this.createCreateValidationFailedResponse(
-        quizDto,
+        quiz,
         validationResult.info,
       );
     }
-    return this.tryToCreateQuiz(quizDto);
-  }
-
-  async createOrUpdateQuiz(quizDto: QuizDto): Promise<QuizServiceResponse> {
-    const validationResult = this.validateQuiz(quizDto);
-    if (validationResult.status == ValidationStatus.FAILURE) {
-      this.logQuizValidationFailure(quizDto.id, validationResult.info);
-      return this.createCreateOrUpdateValidationFailedResponse(
-        quizDto,
-        validationResult.info,
-      );
-    }
-    const savedQuiz = this.databaseFacade.saveOrUpdateQuiz(quizDto);
-    return this.createCreateOrUpdateSuccessResponse(quizDto);
+    return this.tryToCreateQuiz(quiz);
   }
 
   /*deleteQuiz(quizDto: QuizDto): void {
@@ -69,63 +56,52 @@ export class QuizService {
     }
   }
 
-  private async tryToCreateQuiz(
-    quizDto: QuizDto,
-  ): Promise<QuizServiceResponse> {
+  private async tryToCreateQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {
     let failureReason = '';
     try {
-      const savedQuizDto = await this.databaseFacade.saveQuiz(quizDto);
-      return this.createCreateSaveSuccessResponse(savedQuizDto);
+      const savedQuiz = await this.databaseFacade.saveQuiz(quiz);
+      return this.createCreateSaveSuccessResponse(savedQuiz);
     } catch (error) {
       if (error instanceof RecordAlreadyExistsError) {
         failureReason = 'Record already exists.';
       }
-      this.logCreateQuizFailure(quizDto.id, failureReason);
     }
-    return this.createCreateSaveFailureResponse(quizDto, failureReason);
-  }
-
-  private logCreateQuizFailure(quizId: number, failureReason: string) {
-    this.logger.warn(`Failed to create Quiz(id=${quizId}): ${failureReason}`);
+    return this.createCreateSaveFailureResponse(quiz, failureReason);
   }
 
   private logDeleteQuizFailure(quizId: number, failureReason: string) {
     this.logger.warn(`Failed to delete Quiz(id=${quizId}): ${failureReason}`);
   }
 
-  private logQuizValidationFailure(quizId: number, info: string) {
-    this.logger.warn(`Validation for Quiz(id=${quizId} failed: ${info}`);
-  }
-
-  private validateQuiz(quizDto: QuizDto) {
-    const validator = new QuizValidator(quizDto);
+  private validateQuiz(quiz: QuizInput) {
+    const validator = new QuizValidator(quiz);
     return validator.validate();
   }
 
-  private createFindResponse(quizDto: QuizDto): QuizServiceResponse {
+  private createFindResponse(quiz: Quiz): QuizServiceResponse {
     const builder = new QuizServiceResponseBuilder();
-    const responseStatus = this.determineFindResponseStatus(quizDto);
+    const responseStatus = this.determineFindResponseStatus(quiz);
     return builder
-      .quizDto(quizDto)
+      .quiz(quiz)
       .action(QuizServiceAction.FIND)
       .responseStatus(responseStatus)
       .build();
   }
 
-  private determineFindResponseStatus(quizDto: QuizDto): ResponseStatus {
-    if (quizDto == null) {
+  private determineFindResponseStatus(quiz: Quiz): ResponseStatus {
+    if (quiz == null) {
       return ResponseStatus.FAILURE;
     }
     return ResponseStatus.SUCCESS;
   }
 
   private createCreateValidationFailedResponse(
-    quizDto: QuizDto,
+    quiz: QuizInput,
     info: string,
   ): QuizServiceResponse {
     const builder = new QuizServiceResponseBuilder();
     return builder
-      .quizDto(quizDto)
+      .quiz(quiz)
       .action(QuizServiceAction.CREATE)
       .responseStatus(ResponseStatus.FAILURE)
       .info(info)
@@ -133,44 +109,44 @@ export class QuizService {
   }
 
   private createCreateOrUpdateValidationFailedResponse(
-    quizDto: QuizDto,
+    quiz: QuizInput,
     info: string,
   ): QuizServiceResponse {
     const builder = new QuizServiceResponseBuilder();
     return builder
-      .quizDto(quizDto)
+      .quiz(quiz)
       .action(QuizServiceAction.UPDATE)
       .responseStatus(ResponseStatus.FAILURE)
       .info(info)
       .build();
   }
 
-  private createCreateSaveSuccessResponse(quizDto: QuizDto) {
+  private createCreateSaveSuccessResponse(quiz: Quiz) {
     const builder = new QuizServiceResponseBuilder();
     return builder
-      .quizDto(quizDto)
+      .quiz(quiz)
       .action(QuizServiceAction.CREATE)
       .responseStatus(ResponseStatus.SUCCESS)
       .build();
   }
 
   private createCreateSaveFailureResponse(
-    quizDto: QuizDto,
+    quiz: QuizInput,
     failureInfo: string,
   ) {
     const builder = new QuizServiceResponseBuilder();
     return builder
-      .quizDto(quizDto)
+      .quiz(quiz)
       .action(QuizServiceAction.CREATE)
       .responseStatus(ResponseStatus.FAILURE)
       .info(failureInfo)
       .build();
   }
 
-  private createCreateOrUpdateSuccessResponse(quizDto: QuizDto) {
+  private createCreateOrUpdateSuccessResponse(quiz: QuizInput) {
     const builder = new QuizServiceResponseBuilder();
     return builder
-      .quizDto(quizDto)
+      .quiz(quiz)
       .action(QuizServiceAction.UPDATE)
       .responseStatus(ResponseStatus.SUCCESS)
       .build();
@@ -178,11 +154,15 @@ export class QuizService {
 
   private createDeleteSuccessResponse(quizId: number) {
     const builder = new QuizServiceResponseBuilder();
-    const quizDtoOnlyId = new QuizDto();
-    quizDtoOnlyId.id = quizId;
+    const quizOnlyId: Quiz = {
+      id: quizId,
+      title: '',
+      createdBy: '',
+      questions: [],
+    };
 
     return builder
-      .quizDto(quizDtoOnlyId)
+      .quiz(quizOnlyId)
       .action(QuizServiceAction.DELETE)
       .responseStatus(ResponseStatus.SUCCESS)
       .build();
@@ -190,11 +170,15 @@ export class QuizService {
 
   private createDeleteFailureResponse(quizId: number, failureReason: string) {
     const builder = new QuizServiceResponseBuilder();
-    const quizDtoOnlyId = new QuizDto();
-    quizDtoOnlyId.id = quizId;
+    const quizOnlyId: Quiz = {
+      id: quizId,
+      title: '',
+      createdBy: '',
+      questions: [],
+    };
 
     return builder
-      .quizDto(quizDtoOnlyId)
+      .quiz(quizOnlyId)
       .action(QuizServiceAction.DELETE)
       .responseStatus(ResponseStatus.FAILURE)
       .info(failureReason)
