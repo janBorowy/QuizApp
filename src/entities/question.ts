@@ -6,7 +6,7 @@ import {
   RelationId,
 } from 'typeorm';
 import { Quiz } from './quiz';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 @Entity()
 @ObjectType()
@@ -32,7 +32,7 @@ export class Question {
   })
   possibleScore: number;
 
-  @ManyToOne(() => Quiz, (quiz) => quiz.questions)
+  @ManyToOne(() => Quiz)
   @RelationId((question: Question) => question.quiz)
   quiz: Quiz;
 }
@@ -43,3 +43,7 @@ export enum QuestionType {
   PLAIN,
   SORT,
 }
+
+registerEnumType(QuestionType, {
+  name: 'questionType',
+});

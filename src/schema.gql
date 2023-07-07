@@ -3,25 +3,34 @@
 # ------------------------------------------------------
 
 type Mutation {
-  createQuiz(createdBy: String!, title: String!): QuizDto!
+  addQuiz(quiz: QuizInput!): Quiz!
 }
 
 type Query {
-  quiz(id: Int!): QuizDto!
+  quiz(id: Float!): Quiz!
 }
 
-type QuestionDto {
+type Question {
   description: String!
-  id: Int
   possibleScore: Float!
-  quiz: [QuizDto!]!
-  type: String!
+  type: questionType!
 }
 
-type QuizDto {
+type Quiz {
   createdBy: String!
-  id: Int
-  question: QuestionDto!
-  questions: [QuestionDto!]!
+  id: ID!
+  questions: [Question!]!
   title: String!
+}
+
+input QuizInput {
+  createdBy: String!
+  title: String!
+}
+
+enum questionType {
+  MULTIPLE
+  PLAIN
+  SINGLE
+  SORT
 }

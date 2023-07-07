@@ -1,24 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from '../entities/question';
 import { Repository } from 'typeorm';
+import { DatabaseFacade } from '../database/database.facade';
 
 @Injectable()
 export class QuestionService {
   constructor(
-    @InjectRepository(Question)
-    private questionRepository: Repository<Question>,
+    @Inject(DatabaseFacade)
+    private databaseFacade: DatabaseFacade,
   ) {}
 
-  clearRepository() {
-    this.questionRepository.clear();
-  }
-
-  find(query): Promise<Question[]> {
-    return this.questionRepository.find(query);
-  }
-
-  findById(id: number): Promise<Question | null> {
-    return this.questionRepository.findOneBy({ quiz: { id } });
+  findQuestionByQuizId(id: number): Promise<Question | null> {
+    return this.databaseFacade.findQuestionByQuizId(id);
   }
 }
