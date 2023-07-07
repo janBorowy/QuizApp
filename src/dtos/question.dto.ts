@@ -3,7 +3,7 @@ import { QuizDto } from './quiz.dto';
 
 @ObjectType()
 export class QuestionDto {
-  @Field((type) => Int)
+  @Field((type) => Int, { nullable: true })
   id: number;
 
   @Field()

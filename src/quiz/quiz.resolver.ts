@@ -1,6 +1,7 @@
 import {
   Args,
   Int,
+  Mutation,
   Parent,
   Query,
   ResolveField,
@@ -11,6 +12,7 @@ import { QuizService } from './quiz.service';
 import { QuizDto } from '../dtos/quiz.dto';
 import { QuestionDto } from '../dtos/question.dto';
 import { QuestionService } from '../question/question.service';
+import { Quiz } from '../entities/quiz';
 
 @Resolver((of) => QuizDto)
 export class QuizResolver {
@@ -22,8 +24,22 @@ export class QuizResolver {
   ) {}
 
   @Query((returns) => QuizDto)
-  quiz(@Args('id', { type: () => Int }) id: number) {
-    return this.quizService.findQuizById(id);
+  async quiz(@Args('id', { type: () => Int }) id: number) {
+    return (await this.quizService.findQuizById(id)).quizDto;
+  }
+
+  @Mutation(() => QuizDto)
+  async createQuiz(
+    @Args('title', { type: () => String }) quizTitle: string,
+    @Args('createdBy', { type: () => String }) quizCreatedBy: string,
+  ) {
+    const quizDto: QuizDto = {
+      title: quizTitle,
+      createdBy: quizCreatedBy,
+      questions: [],
+    };
+    const response = await this.quizService.createNewQuiz(quizDto);
+    return response.quizDto;
   }
 
   @ResolveField(() => QuestionDto)

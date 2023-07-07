@@ -2,13 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Mutation {
+  createQuiz(createdBy: String!, title: String!): QuizDto!
+}
+
 type Query {
   quiz(id: Int!): QuizDto!
 }
 
 type QuestionDto {
   description: String!
-  id: Int!
+  id: Int
   possibleScore: Float!
   quiz: [QuizDto!]!
   type: String!
@@ -16,8 +20,8 @@ type QuestionDto {
 
 type QuizDto {
   createdBy: String!
-  id: Int!
-  name: String!
+  id: Int
   question: QuestionDto!
   questions: [QuestionDto!]!
+  title: String!
 }
