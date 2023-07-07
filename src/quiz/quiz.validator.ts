@@ -5,13 +5,14 @@ import {
 } from '../validation/validation.result';
 import { ValidationResultBuilder } from '../validation/validation.result.builder';
 import { ValidationPart } from '../validation/validation.part';
+import { QuizDto } from '../dtos/quiz.dto';
 
 export const INVALID_TITLE_LENGTH_MESSAGE = 'Invalid title length';
 
 export class QuizValidator {
-  validationParts: ValidationPart<Quiz>[];
+  validationParts: ValidationPart<QuizDto>[];
 
-  constructor(private quiz: Quiz) {
+  constructor(private quiz: QuizDto) {
     this.validationParts = [titleLengthValidationPart];
   }
 
@@ -47,7 +48,7 @@ export class QuizValidator {
 
 const titleLengthValidationPart = new ValidationPart(
   INVALID_TITLE_LENGTH_MESSAGE,
-  (quiz: Quiz): boolean => {
+  (quiz: QuizDto): boolean => {
     return quiz.title.length != 0;
   },
 );

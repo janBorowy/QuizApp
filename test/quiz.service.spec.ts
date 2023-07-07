@@ -23,6 +23,7 @@ describe('QuizService', () => {
           useValue: {
             findOneBy: jest.fn(),
             save: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -39,10 +40,12 @@ describe('QuizService', () => {
   it('Should properly create new quiz', async () => {
     loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
 
-    const saveResult = quizService.createNewQuiz(exampleQuiz);
+    const saveResult = await quizService.createNewQuiz(exampleQuiz);
+    expect(saveResult).toEqual(exampleQuiz);
+    expect(await quizService.findQuizById(saveResult.id)).toEqual(saveResult);
   });
 
-  it('Should throw error when trying to create quiz that exists', async () => {
+  it('Should not allow creating quiz that exists', async () => {
     loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
 
     const createdQuiz = await quizService.createNewQuiz(exampleQuiz);
@@ -51,5 +54,43 @@ describe('QuizService', () => {
     );
     expect(await quizService.findQuizById(exampleQuiz.id)).toEqual(exampleQuiz);
     expect(createdQuizWithSameId).toBeNull();
+  });
+
+  it('Should allow updating quiz', async () => {
+    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+
+    const createdQuiz = await quizService.createNewQuiz(exampleQuiz);
+    const createdQuizWithSameId = await quizService.createOrUpdateQuiz(
+      exampleQuizWithId1,
+    );
+    expect(await quizService.findQuizById(exampleQuiz.id)).toEqual(
+      exampleQuizWithId1,
+    );
+    expect(createdQuizWithSameId).toEqual(exampleQuizWithId1);
+  });
+
+  it('Should return null when trying to save entities not passing validation', async () => {
+    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+
+    const quiz = {
+      id: 1,
+      title: '',
+      createdBy: 'SomeoneOut ThereSomewhere',
+      questions: [],
+    };
+
+    const createdQuiz = await quizService.createNewQuiz(quiz);
+
+    expect(createdQuiz).toBeNull();
+    expect(await quizService.findQuizById(quiz.id)).toBeNull();
+  });
+
+  it('Should delete quiz properly', async () => {
+    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+
+    const savedQuiz = await quizService.createNewQuiz(exampleQuiz);
+    const deleteResult = await quizService.deleteQuizById(exampleQuiz.id);
+
+    expect(await quizService.findQuizById(savedQuiz.id)).toBeNull();
   });
 });
