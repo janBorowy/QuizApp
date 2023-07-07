@@ -6,16 +6,17 @@ import { Question } from '../entities/question';
 import { QuizService } from './quiz.service';
 import { SimpleDataUtil } from '../simpleData.util';
 import { QuestionService } from '../question/question.service';
+import { DatabaseFacade } from '../database/database.facade';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Quiz, Question])],
-  providers: [QuizResolver, QuizService, QuestionService],
+  providers: [QuizResolver, QuizService, QuestionService, DatabaseFacade],
 })
 export class QuizModule {
   constructor(
-    @Inject(QuizService)
-    quizService: QuizService,
+    @Inject(DatabaseFacade)
+    databaseFacade: DatabaseFacade,
   ) {
-    SimpleDataUtil.populateQuizThroughProvider(quizService);
+    SimpleDataUtil.populateDatabaseThroughFacade(databaseFacade);
   }
 }

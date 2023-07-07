@@ -1,12 +1,13 @@
 import { Quiz } from './entities/quiz';
 import { Question } from './entities/question';
 import { QuizService } from './quiz/quiz.service';
+import { DatabaseFacade } from './database/database.facade';
 
 export class SimpleDataUtil {
   public static quizSingleAnswer = this.createQuizSingleAnswer();
 
-  public static populateQuizThroughProvider(provider: QuizService) {
-    provider.save(this.quizSingleAnswer);
+  public static populateDatabaseThroughFacade(databaseFacade: DatabaseFacade) {
+    databaseFacade.saveQuiz(this.quizSingleAnswer);
   }
 
   private static createQuizSingleAnswer(): Quiz {

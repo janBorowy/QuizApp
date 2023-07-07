@@ -4,7 +4,7 @@ import { QuestionDto } from './question.dto';
 @ObjectType()
 export class QuizDto {
   @Field((type) => Int)
-  id: number;
+  id?: number;
 
   @Field()
   name: string;

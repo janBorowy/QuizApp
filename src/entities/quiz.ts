@@ -3,7 +3,7 @@ import { Question } from './question';
 
 @Entity()
 export class Quiz {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column({

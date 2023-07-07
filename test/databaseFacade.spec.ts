@@ -1,32 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseFacade } from '../src/database.facade';
-import { QuizDto } from '../src/dtos/quiz.dto';
+import { DatabaseFacade } from '../src/database/database.facade';
 import { RecordAlreadyExistsError } from '../src/exceptions/recordAlreadyExists.error';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Quiz } from '../src/entities/quiz';
 import { Repository } from 'typeorm';
-import { FindOptions } from '@nestjs/schematics';
-import { extend } from '@nestjs/graphql';
-
-interface FindOneByFindOptions extends FindOptions {
-  id: number;
-}
-
-function loadTestQuizRepositoryImplementation(
-  quizRepository: Repository<Quiz>,
-  repositoryContents: Map<number, Quiz>,
-) {
-  jest.spyOn(quizRepository, 'save').mockImplementation(async (quiz: Quiz) => {
-    await repositoryContents.set(quiz.id, quiz);
-    return quiz;
-  });
-
-  jest
-    .spyOn(quizRepository, 'findOneBy')
-    .mockImplementation(async (findOptions: FindOneByFindOptions) => {
-      return repositoryContents.get(findOptions.id);
-    });
-}
+import { loadTestQuizRepositoryImplementation } from './quiz.repository.test.impl';
+import {
+  anotherExampleQuiz,
+  exampleQuiz,
+  exampleQuizNoId,
+  exampleQuizWithId1,
+} from './testing.data';
+import { RecordNotFoundError } from '../src/exceptions/recordNotFound.error';
 
 describe('DatabaseFacade', () => {
   let databaseFacade: DatabaseFacade;
@@ -39,10 +24,11 @@ describe('DatabaseFacade', () => {
       providers: [
         DatabaseFacade,
         {
-          provide: getRepositoryToken(Quiz),
+          provide: quizRepositoryToken,
           useValue: {
             findOneBy: jest.fn(),
             save: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -51,22 +37,10 @@ describe('DatabaseFacade', () => {
     databaseFacade = testingModule.get<DatabaseFacade>(DatabaseFacade);
     quizRepository = testingModule.get<Repository<Quiz>>(quizRepositoryToken);
   });
+
   afterEach(() => {
     repositoryContents.clear();
   });
-
-  const exampleQuiz: QuizDto = {
-    id: 1,
-    name: 'Example quiz',
-    createdBy: 'SomeoneOut ThereSomewhere',
-    questions: [],
-  };
-  const exampleQuizUpdate: QuizDto = {
-    id: 1,
-    name: 'Example quiz update',
-    createdBy: 'SomeoneOut ThereSomewhere',
-    questions: [],
-  };
 
   it('Injected providers should be defined', () => {
     expect(databaseFacade).toBeDefined();
@@ -86,13 +60,27 @@ describe('DatabaseFacade', () => {
     expect(await databaseFacade.findQuizById(1)).toBeNull();
   });
 
-  it('Should save properly', async () => {
+  it('Should save properly with given id', async () => {
     loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
 
     const savedQuiz = await databaseFacade.saveQuiz(exampleQuiz);
     expect(savedQuiz).toEqual(exampleQuiz);
     expect(await databaseFacade.findQuizById(1)).not.toBeNull();
     expect(await databaseFacade.findQuizById(1)).toEqual(exampleQuiz);
+
+    const anotherSavedQuiz = await databaseFacade.saveQuiz(anotherExampleQuiz);
+    expect(anotherSavedQuiz).toEqual(anotherExampleQuiz);
+    expect(await databaseFacade.findQuizById(2)).not.toBeNull();
+    expect(await databaseFacade.findQuizById(2)).toEqual(anotherExampleQuiz);
+  });
+
+  it('Should save properly without given id', async () => {
+    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+
+    const savedQuiz = await databaseFacade.saveQuiz(exampleQuizNoId);
+    expect(savedQuiz).not.toBeNull();
+    expect(savedQuiz.id).toEqual(0);
+    expect(await databaseFacade.findQuizById(savedQuiz.id)).toEqual(savedQuiz);
   });
 
   it('Should save properly and update', async () => {
@@ -104,14 +92,14 @@ describe('DatabaseFacade', () => {
     expect(await databaseFacade.findQuizById(1)).toEqual(exampleQuiz);
 
     const quizSequelFromDatabase = await databaseFacade.saveOrUpdateQuiz(
-      exampleQuizUpdate,
+      exampleQuizWithId1,
     );
-    expect(quizSequelFromDatabase).toEqual(exampleQuizUpdate);
+    expect(quizSequelFromDatabase).toEqual(exampleQuizWithId1);
     expect(await databaseFacade.findQuizById(1)).not.toBeNull();
-    expect(await databaseFacade.findQuizById(1)).toEqual(exampleQuizUpdate);
+    expect(await databaseFacade.findQuizById(1)).toEqual(exampleQuizWithId1);
   });
 
-  it('Should throw exepction when trying to create quiz with existing id', async () => {
+  it('Should throw exception when trying to create quiz with existing id', async () => {
     loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
 
     await databaseFacade.saveQuiz(exampleQuiz);
@@ -119,5 +107,22 @@ describe('DatabaseFacade', () => {
     await expect(() => {
       return databaseFacade.saveQuiz(exampleQuiz);
     }).rejects.toThrow(RecordAlreadyExistsError);
+  });
+
+  it('Should delete record properly', async () => {
+    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+
+    const savedQuiz = await databaseFacade.saveQuiz(exampleQuiz);
+    const deleteResult = await databaseFacade.deleteQuizById(savedQuiz.id);
+    expect(deleteResult.raw).toBeTruthy();
+    expect(await databaseFacade.findQuizById(savedQuiz.id)).toBeNull();
+  });
+
+  it('Should throw when trying to delete absent record', () => {
+    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+
+    expect(databaseFacade.deleteQuizById(exampleQuiz.id)).rejects.toThrow(
+      RecordNotFoundError,
+    );
   });
 });

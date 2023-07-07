@@ -23,7 +23,7 @@ export class QuizResolver {
 
   @Query((returns) => QuizDto)
   quiz(@Args('id', { type: () => Int }) id: number) {
-    return this.quizService.findById(1);
+    return this.quizService.findQuizById(id);
   }
 
   @ResolveField(() => QuestionDto)

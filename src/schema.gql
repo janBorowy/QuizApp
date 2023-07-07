@@ -9,6 +9,7 @@ type Query {
 type QuestionDto {
   description: String!
   id: Int!
+  possibleScore: Float!
   quiz: [QuizDto!]!
   type: String!
 }

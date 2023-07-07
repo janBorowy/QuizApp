@@ -1,8 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConsoleLogger } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn'],
+  });
+  app.useLogger(app.get(ConsoleLogger));
   await app.listen(3000);
 }
 bootstrap();
