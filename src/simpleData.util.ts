@@ -13,7 +13,7 @@ export class SimpleDataUtil {
   private static createQuizSingleAnswer(): Quiz {
     const quiz = new Quiz();
     quiz.createdBy = 'Dariusz Wiewiórko';
-    quiz.name = 'Polish History Quiz';
+    quiz.title = 'Polish History Quiz';
 
     const question11 = new Question();
     question11.description = 'When was the Battle of Grunwald fought?';

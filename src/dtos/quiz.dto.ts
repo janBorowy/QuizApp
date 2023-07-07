@@ -7,7 +7,7 @@ export class QuizDto {
   id?: number;
 
   @Field()
-  name: string;
+  title: string;
 
   @Field()
   createdBy: string;

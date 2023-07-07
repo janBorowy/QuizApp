@@ -10,7 +10,7 @@ export class Quiz {
     nullable: false,
     default: '',
   })
-  name: string;
+  title: string;
 
   @Column({
     name: 'created_by',
