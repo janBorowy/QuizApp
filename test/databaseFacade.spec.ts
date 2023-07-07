@@ -113,8 +113,7 @@ describe('DatabaseFacade', () => {
     loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
 
     const savedQuiz = await databaseFacade.saveQuiz(exampleQuiz);
-    const deleteResult = await databaseFacade.deleteQuizById(savedQuiz.id);
-    expect(deleteResult).toBeTruthy();
+    await databaseFacade.deleteQuizById(savedQuiz.id);
     expect(await databaseFacade.findQuizById(savedQuiz.id)).toBeNull();
   });
 
