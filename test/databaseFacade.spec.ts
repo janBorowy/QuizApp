@@ -114,7 +114,7 @@ describe('DatabaseFacade', () => {
 
     const savedQuiz = await databaseFacade.saveQuiz(exampleQuiz);
     const deleteResult = await databaseFacade.deleteQuizById(savedQuiz.id);
-    expect(deleteResult.raw).toBeTruthy();
+    expect(deleteResult).toBeTruthy();
     expect(await databaseFacade.findQuizById(savedQuiz.id)).toBeNull();
   });
 

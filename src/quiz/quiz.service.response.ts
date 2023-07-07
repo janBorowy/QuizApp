@@ -10,6 +10,10 @@ export class QuizServiceResponse {
 export class QuizServiceResponseBuilder {
   quizServiceResponse: QuizServiceResponse;
 
+  constructor() {
+    this.quizServiceResponse = new QuizServiceResponse();
+  }
+
   action(action: QuizServiceAction): QuizServiceResponseBuilder {
     this.quizServiceResponse.action = action;
     return this;

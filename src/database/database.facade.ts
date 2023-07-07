@@ -37,6 +37,7 @@ export class DatabaseFacade {
       throw new RecordNotFoundError(quizId);
     }
     const deleteResult = await this.quizRepository.delete(quizId);
+    return deleteResult;
   }
 
   private saveQuizToDatabase(quizDto: QuizDto): Promise<QuizDto> {
