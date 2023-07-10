@@ -1,5 +1,5 @@
 import { Question, QuestionType } from '../src/entities/question';
-import { QuizGrader } from '../src/quiz/QuizGrader';
+import { QuizGrader } from '../src/quiz/quiz.grader';
 
 const firstExpectedResult = [2, 1.5, 0, 2];
 const firstAnswers = ['2', '0100', "I don't know", '2130'];
