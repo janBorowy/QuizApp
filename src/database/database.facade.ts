@@ -5,14 +5,13 @@ import { Repository } from 'typeorm';
 import { RecordNotFoundError } from '../exceptions/recordNotFound.error';
 import { QuizInput } from '../quiz/types/quiz.input';
 import { Question } from '../entities/question';
+import { FindOptions } from '@nestjs/schematics';
 
 @Injectable()
 export class DatabaseFacade {
   constructor(
     @InjectRepository(Quiz)
     private quizRepository: Repository<Quiz>,
-    @InjectRepository(Question)
-    private questionRepository: Repository<Question>,
   ) {}
 
   async saveQuiz(quiz: QuizInput): Promise<Quiz> {
@@ -28,13 +27,9 @@ export class DatabaseFacade {
     return quizPromise;
   }
 
-  findQuestionByQuizId(quizId: number): Promise<Question> {
-    const questionPromise = this.questionRepository.findOneBy({
-      quiz: {
-        id: quizId,
-      },
-    });
-    return questionPromise;
+  findQuizByQuery(query) {
+    const quizPromise = this.quizRepository.findBy(query);
+    return quizPromise;
   }
 
   async deleteQuizById(quizId: number) {

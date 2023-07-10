@@ -29,6 +29,7 @@ describe('DatabaseFacade', () => {
             save: jest.fn(),
             delete: jest.fn(),
             create: jest.fn(),
+            findBy: jest.fn(),
           },
         },
       ],
@@ -88,5 +89,19 @@ describe('DatabaseFacade', () => {
     expect(databaseFacade.deleteQuizById(exampleQuiz.id)).rejects.toThrow(
       RecordNotFoundError,
     );
+  });
+
+  it('Should find quiz by query', async () => {
+    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+
+    const response = await databaseFacade.saveQuiz(exampleQuiz);
+    const found = (
+      await databaseFacade.findQuizByQuery({
+        title: exampleQuiz.title,
+      })
+    )[0];
+
+    expect(found).not.toBeNull();
+    expect(found).toEqual(response);
   });
 });

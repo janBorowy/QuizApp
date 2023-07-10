@@ -48,6 +48,25 @@ export function loadTestQuizRepositoryImplementation(
     });
 
   jest
+    .spyOn(quizRepository, 'findBy')
+    .mockImplementation(async (findOptions: FindOneByFindOptions) => {
+      const foundEntity = repositoryContents.get(findOptions.id);
+      if (foundEntity != undefined) {
+        return [foundEntity];
+      }
+
+      const values = Array.from(repositoryContents.values());
+      return values.filter((quiz) => {
+        for (const option in findOptions) {
+          if (findOptions[option] === quiz[option]) {
+            return true;
+          }
+          return false;
+        }
+      });
+    });
+
+  jest
     .spyOn(quizRepository, 'delete')
     .mockImplementation(async (quizId: number): Promise<DeleteResult> => {
       const existed = repositoryContents.delete(quizId);

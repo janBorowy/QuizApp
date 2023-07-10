@@ -10,8 +10,4 @@ export class QuestionService {
     @Inject(DatabaseFacade)
     private databaseFacade: DatabaseFacade,
   ) {}
-
-  findQuestionByQuizId(id: number): Promise<Question | null> {
-    return this.databaseFacade.findQuestionByQuizId(id);
-  }
 }

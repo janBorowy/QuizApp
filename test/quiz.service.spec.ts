@@ -34,6 +34,7 @@ describe('QuizService', () => {
             save: jest.fn(),
             delete: jest.fn(),
             create: jest.fn(),
+            findBy: jest.fn(),
           },
         },
       ],
