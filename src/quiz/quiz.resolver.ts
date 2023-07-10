@@ -32,7 +32,7 @@ export class QuizResolver {
   async quizByTitle(@Args('title') title: string): Promise<Quiz[]> {
     const response = await this.quizService.findQuizByTitle(title);
     if (response.responseStatus === ResponseStatus.FAILURE) {
-      this.hanldeQueryQuizByTitleFailureResponse(response.info);
+      this.handleQueryQuizByTitleFailureResponse(response.info);
     }
     return response.quizzes;
   }
@@ -45,6 +45,11 @@ export class QuizResolver {
     }
     return response.quiz;
   }
+
+  @Mutation((returns) => Quiz)
+  async question(
+    @Args('question') questionInput: QuestionInput,
+  ): Promise<Quiz> {}
 
   @Mutation(() => Quiz)
   async deleteQuiz(@Args('id') id: number): Promise<Quiz> {
@@ -66,7 +71,7 @@ export class QuizResolver {
     throw new QuizDeletionError(info);
   }
 
-  private hanldeQueryQuizByTitleFailureResponse(info: string) {
+  private handleQueryQuizByTitleFailureResponse(info: string) {
     throw new RuntimeException('Unknown error occurred');
   }
 }

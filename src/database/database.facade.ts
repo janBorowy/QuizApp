@@ -5,13 +5,15 @@ import { Repository } from 'typeorm';
 import { RecordNotFoundError } from '../exceptions/recordNotFound.error';
 import { QuizInput } from '../quiz/types/quiz.input';
 import { Question } from '../entities/question';
-import { FindOptions } from '@nestjs/schematics';
+import { QuestionInput } from '../quiz/types/question.input';
 
 @Injectable()
 export class DatabaseFacade {
   constructor(
     @InjectRepository(Quiz)
     private quizRepository: Repository<Quiz>,
+    @InjectRepository(Question)
+    private questionRepository: Repository<Question>,
   ) {}
 
   async saveQuiz(quiz: QuizInput): Promise<Quiz> {
@@ -27,9 +29,24 @@ export class DatabaseFacade {
     return quizPromise;
   }
 
-  findQuizByQuery(query) {
+  findQuizByQuery(query): Promise<Quiz[]> {
     const quizPromise = this.quizRepository.findBy(query);
     return quizPromise;
+  }
+
+  async saveQuestion(
+    questionInput: QuestionInput,
+    quizId: number,
+  ): Promise<Question> {
+    const quiz = await this.findQuizById(quizId);
+    const question = {
+      ...questionInput,
+      quizId,
+      quiz,
+      answers: [],
+    };
+    const questionPromise = this.questionRepository.save(question);
+    return questionPromise;
   }
 
   async deleteQuizById(quizId: number) {
@@ -39,7 +56,7 @@ export class DatabaseFacade {
     const deleteResult = await this.quizRepository.delete(quizId);
   }
 
-  private async existsQuizInDatabaseById(quizId: number): Promise<boolean> {
+  async existsQuizInDatabaseById(quizId: number): Promise<boolean> {
     return (await this.quizRepository.findOneBy({ id: quizId })) != null;
   }
 }

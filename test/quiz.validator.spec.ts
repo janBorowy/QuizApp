@@ -1,8 +1,8 @@
+import { ValidationStatus } from '../src/validation/validation.result';
 import {
   INVALID_TITLE_LENGTH_MESSAGE,
   QuizValidator,
 } from '../src/quiz/quiz.validator';
-import { ValidationStatus } from '../src/validation/validation.result';
 
 describe('QuizValidator', () => {
   let quiz;

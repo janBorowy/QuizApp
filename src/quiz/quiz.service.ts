@@ -1,7 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DatabaseFacade } from '../database/database.facade';
-import { RecordAlreadyExistsError } from '../exceptions/recordAlreadyExists.error';
-import { QuizValidator } from './quiz.validator';
 import { ValidationStatus } from '../validation/validation.result';
 import { RecordNotFoundError } from '../exceptions/recordNotFound.error';
 import {
@@ -14,6 +12,10 @@ import {
 } from './quiz.service.response';
 import { Quiz } from '../entities/quiz';
 import { QuizInput } from './types/quiz.input';
+import { QuizNotFoundError } from '../exceptions/QuizNotFound.error';
+import { QuizValidator } from './quiz.validator';
+import { QuestionInput } from './types/question.input';
+import { QuestionValidator } from './question.validator';
 
 @Injectable()
 export class QuizService {
@@ -48,7 +50,7 @@ export class QuizService {
         validationResult.info,
       );
     }
-    return this.tryToCreateQuiz(quiz);
+    return this.createQuiz(quiz);
   }
 
   /*deleteQuiz(quizDto: QuizDto): void {
@@ -69,17 +71,24 @@ export class QuizService {
     }
   }
 
-  private async tryToCreateQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {
-    let failureReason = '';
-    try {
-      const savedQuiz = await this.databaseFacade.saveQuiz(quiz);
-      return this.createCreateSaveSuccessResponse(savedQuiz);
-    } catch (error) {
-      if (error instanceof RecordAlreadyExistsError) {
-        failureReason = 'Record already exists.';
-      }
+  async addQuestionToQuizWithId(
+    question: QuestionInput,
+    quizId: number,
+  ): Promise<QuizServiceResponse> {
+    await this.checkIfQuizExists(quizId);
+    const validationResult = this.validateQuestion(question);
+    if (validationResult.status === ValidationStatus.FAILURE) {
+      return this.createAddQuestionValidationFailedResponse(
+        question,
+        validationResult.info,
+      );
     }
-    return this.createCreateSaveFailureResponse(quiz, failureReason);
+    return this.addQuestion(question, quizId);
+  }
+
+  private async createQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {
+    const savedQuiz = await this.databaseFacade.saveQuiz(quiz);
+    return this.createCreateSaveSuccessResponse(savedQuiz);
   }
 
   private logDeleteQuizFailure(quizId: number, failureReason: string) {
@@ -148,19 +157,6 @@ export class QuizService {
       .build();
   }
 
-  private createCreateSaveFailureResponse(
-    quiz: QuizInput,
-    failureInfo: string,
-  ) {
-    const builder = new QuizServiceResponseBuilder();
-    return builder
-      .quiz(quiz)
-      .action(QuizServiceAction.CREATE)
-      .responseStatus(ResponseStatus.FAILURE)
-      .info(failureInfo)
-      .build();
-  }
-
   private createCreateOrUpdateSuccessResponse(quiz: QuizInput) {
     const builder = new QuizServiceResponseBuilder();
     return builder
@@ -210,6 +206,59 @@ export class QuizService {
       .quizzes(quizzes)
       .action(QuizServiceAction.FIND)
       .responseStatus(ResponseStatus.SUCCESS)
+      .build();
+  }
+
+  private handleAddQuestionQuizDoesntExist(info: string) {
+    throw new QuizNotFoundError(info);
+  }
+
+  private validateQuestion(question: QuestionInput) {
+    const validator = new QuestionValidator(question);
+    return validator.validate();
+  }
+
+  private createAddQuestionValidationFailedResponse(
+    question: QuestionInput,
+    info: string,
+  ) {
+    const builder = new QuizServiceResponseBuilder();
+
+    return builder
+      .action(QuizServiceAction.CREATE)
+      .info(info)
+      .quiz(null)
+      .responseStatus(ResponseStatus.FAILURE)
+      .build();
+  }
+
+  private createAddQuestionQuizDoesntExistResponse(quizId: number) {
+    const builder = new QuizServiceResponseBuilder();
+
+    return builder
+      .action(QuizServiceAction.CREATE)
+      .responseStatus(ResponseStatus.FAILURE)
+      .info(`Quiz with id=${quizId} doesn't exist`)
+      .build();
+  }
+
+  private async addQuestion(questionInput: QuestionInput, quizId: number) {
+    await this.databaseFacade.saveQuestion(questionInput, quizId);
+    return this.createAddQuestionSuccessResponse();
+  }
+
+  private async checkIfQuizExists(quizId: number) {
+    const exists = await this.databaseFacade.existsQuizInDatabaseById(quizId);
+    if (!exists) {
+      throw new QuizNotFoundError("quiz with given id doesn't exist");
+    }
+  }
+
+  private createAddQuestionSuccessResponse() {
+    const builder = new QuizServiceResponseBuilder();
+    return builder
+      .responseStatus(ResponseStatus.SUCCESS)
+      .action(QuizServiceAction.CREATE)
       .build();
   }
 }

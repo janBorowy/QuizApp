@@ -11,4 +11,10 @@ export class QuestionInput implements Partial<Question> {
 
   @Field((type) => Int)
   possibleScore: number;
+
+  @Field()
+  correctAnswerString: string;
+
+  @Field()
+  quizId: number;
 }
