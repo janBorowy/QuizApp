@@ -2,11 +2,13 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
 import { Quiz } from './quiz';
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Answer } from './answer';
 
 @Entity()
 @ObjectType()
@@ -27,14 +29,21 @@ export class Question {
   type: QuestionType;
 
   @Field()
-  @Column({
-    name: 'possible_score',
-  })
+  @Column()
   possibleScore: number;
 
+  @Field()
+  @Column()
+  correctAnswerString: string;
+
+  @Field((type) => [Answer])
+  @OneToMany((type) => Answer, (answer) => answer.question, { cascade: true })
+  answers: Answer[];
+
   @ManyToOne(() => Quiz)
-  @RelationId((question: Question) => question.quiz)
   quiz: Quiz;
+  @RelationId((question: Question) => question.quiz)
+  quizId: number;
 }
 
 export enum QuestionType {

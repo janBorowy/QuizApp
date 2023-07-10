@@ -5,12 +5,11 @@ import { Quiz } from '../src/entities/quiz';
 import { Repository } from 'typeorm';
 import { QuizService } from '../src/quiz/quiz.service';
 import { loadTestQuizRepositoryImplementation } from './quiz.repository.test.impl';
-import { exampleQuiz, exampleQuizWithId1 } from './testing.data';
+import { exampleQuiz } from './testing.data';
 import {
   QuizServiceAction,
   ResponseStatus,
 } from '../src/quiz/quiz.service.response';
-import { find } from 'rxjs';
 
 async function findQuizById(id: number, quizService: QuizService) {
   return (await quizService.findQuizById(id)).quiz;
@@ -104,5 +103,15 @@ describe('QuizService', () => {
 
     expect(response.responseStatus).toEqual(ResponseStatus.FAILURE);
     expect(response.action).toEqual(QuizServiceAction.DELETE);
+  });
+
+  it('Should find quiz by title', async () => {
+    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+
+    const saveResponse = await quizService.createNewQuiz(exampleQuiz);
+    const response = await quizService.findQuizByTitle(exampleQuiz.title);
+
+    expect(response.responseStatus).toEqual(ResponseStatus.SUCCESS);
+    expect(response.quizzes[0]).toEqual(exampleQuiz);
   });
 });

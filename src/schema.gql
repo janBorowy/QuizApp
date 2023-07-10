@@ -2,9 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Answer {
+  content: String!
+}
+
 type Mutation {
   addQuiz(quiz: QuizInput!): Quiz!
-  removeQuiz(id: Float!): Quiz!
+  deleteQuiz(id: Float!): Quiz!
 }
 
 type Query {
@@ -13,6 +17,8 @@ type Query {
 }
 
 type Question {
+  answers: [Answer!]!
+  correctAnswerString: String!
   description: String!
   possibleScore: Float!
   type: questionType!
