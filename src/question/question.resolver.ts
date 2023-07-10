@@ -11,9 +11,4 @@ export class QuestionResolver {
     @Inject(QuestionService)
     private readonly questionService: QuestionService,
   ) {}
-
-  @ResolveField()
-  async question(@Root() quiz: Quiz) {
-    return await this.questionService.findQuestionByQuizId(quiz.id);
-  }
 }

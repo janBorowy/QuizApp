@@ -4,10 +4,12 @@
 
 type Mutation {
   addQuiz(quiz: QuizInput!): Quiz!
+  removeQuiz(id: Float!): Quiz!
 }
 
 type Query {
-  quiz(id: Float!): Quiz!
+  quizById(id: Float!): Quiz!
+  quizByTitle(title: String!): [Quiz!]!
 }
 
 type Question {

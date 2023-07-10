@@ -6,6 +6,8 @@ import { ValidationStatus } from '../validation/validation.result';
 import { RecordNotFoundError } from '../exceptions/recordNotFound.error';
 import {
   QuizServiceAction,
+  QuizServiceMultipleResponse,
+  QuizServiceMultipleResponseBuilder,
   QuizServiceResponse,
   QuizServiceResponseBuilder,
   ResponseStatus,
@@ -16,6 +18,8 @@ import { QuizInput } from './types/quiz.input';
 @Injectable()
 export class QuizService {
   private readonly logger = new Logger(QuizService.name);
+  private static readonly NO_QUIZ_WITH_GIVEN_ID_MESSAGE: string =
+    'could not find quiz with given id';
 
   constructor(
     @Inject(DatabaseFacade)
@@ -25,6 +29,15 @@ export class QuizService {
   async findQuizById(quizId: number): Promise<QuizServiceResponse> {
     const quiz = await this.databaseFacade.findQuizById(quizId);
     return this.createFindResponse(quiz);
+  }
+
+  async findQuizByTitle(
+    quizTitle: string,
+  ): Promise<QuizServiceMultipleResponse> {
+    const quiz = await this.databaseFacade.findQuizByQuery({
+      title: quizTitle,
+    });
+    return this.createFindByQueryResponse(quiz);
   }
 
   async createNewQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {
@@ -81,10 +94,15 @@ export class QuizService {
   private createFindResponse(quiz: Quiz): QuizServiceResponse {
     const builder = new QuizServiceResponseBuilder();
     const responseStatus = this.determineFindResponseStatus(quiz);
+    let info = '';
+    if (responseStatus === ResponseStatus.FAILURE) {
+      info = QuizService.NO_QUIZ_WITH_GIVEN_ID_MESSAGE;
+    }
     return builder
       .quiz(quiz)
       .action(QuizServiceAction.FIND)
       .responseStatus(responseStatus)
+      .info(info)
       .build();
   }
 
@@ -182,6 +200,16 @@ export class QuizService {
       .action(QuizServiceAction.DELETE)
       .responseStatus(ResponseStatus.FAILURE)
       .info(failureReason)
+      .build();
+  }
+
+  private createFindByQueryResponse(quizzes: Quiz[]) {
+    const builder = new QuizServiceMultipleResponseBuilder();
+
+    return builder
+      .quizzes(quizzes)
+      .action(QuizServiceAction.FIND)
+      .responseStatus(ResponseStatus.SUCCESS)
       .build();
   }
 }
