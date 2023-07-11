@@ -62,10 +62,26 @@ export class DatabaseFacade {
     if (!(await this.existsQuizInDatabaseById(quizId))) {
       throw new RecordNotFoundError(quizId);
     }
-    const deleteResult = await this.quizRepository.delete(quizId);
+    await this.questionRepository.delete({
+      quiz: { id: quizId },
+    });
+    await this.quizRepository.delete(quizId);
   }
 
   async existsQuizInDatabaseById(quizId: number): Promise<boolean> {
     return (await this.quizRepository.findOneBy({ id: quizId })) != null;
+  }
+
+  async existsQuestionInDatabaseById(questionId: number): Promise<boolean> {
+    return (
+      (await this.questionRepository.findOneBy({ id: questionId })) != null
+    );
+  }
+
+  async deleteQuestionById(questionId: number) {
+    if (!(await this.existsQuestionInDatabaseById(questionId))) {
+      throw new RecordNotFoundError(questionId);
+    }
+    await this.questionRepository.delete({ id: questionId });
   }
 }

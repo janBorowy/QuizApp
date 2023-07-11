@@ -19,6 +19,7 @@ import { QuestionValidator } from './question.validator';
 import { Question } from '../entities/question';
 import { SolveResult } from '../entities/solve.result';
 import { QuizGrader } from './quiz.grader';
+import { QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class QuizService {
@@ -61,18 +62,17 @@ export class QuizService {
     return this.createQuiz(quiz);
   }
 
-  /*deleteQuiz(quizDto: QuizDto): void {
-    this.deleteQuizById(quizDto.id);
-  }*/
-
   async deleteQuizById(quizId: number): Promise<QuizServiceResponse> {
-    let failureReason = '';
+    let failureReason = 'unknown reason';
     try {
       await this.databaseFacade.deleteQuizById(quizId);
       return this.createDeleteSuccessResponse(quizId);
     } catch (error) {
       if (error instanceof RecordNotFoundError) {
         failureReason = 'Record not found in database.';
+      }
+      if (error instanceof QueryFailedError) {
+        failureReason = "driver error occurred - shouldn't happen";
       }
       this.logDeleteQuizFailure(quizId, failureReason);
       return this.createDeleteFailureResponse(quizId, failureReason);
@@ -98,6 +98,22 @@ export class QuizService {
     const questions = await this.databaseFacade.findAllQuizQuestions(quizId);
     const results = QuizGrader.gradeQuiz(questions, answers);
     return this.transformResultsToSolveResult(questions, results);
+  }
+
+  async deleteQuestion(questionId: number) {
+    let failureReason = 'unknown reason';
+    try {
+      await this.databaseFacade.deleteQuestionById(questionId);
+    } catch (error) {
+      if (error instanceof RecordNotFoundError) {
+        failureReason = 'Record not found in database.';
+      }
+      if (error instanceof QueryFailedError) {
+        failureReason = "driver error occurred - shouldn't happen";
+      }
+      return this.createDeleteFailureResponse(questionId, failureReason);
+    }
+    return this.createDeleteSuccessResponse(questionId);
   }
 
   private async createQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {

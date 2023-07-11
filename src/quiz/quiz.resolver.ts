@@ -20,6 +20,7 @@ import { QuestionCouldNotBeAddedError } from '../exceptions/QuestionCouldNotBeAd
 import { Question } from '../entities/question';
 import { SolveResult } from '../entities/solve.result';
 import { SolveQuizInput } from './types/SolveQuiz.input';
+import { QuestionDeletionError } from '../exceptions/QuestionDeletion.error';
 
 @Resolver((of) => Quiz)
 export class QuizResolver {
@@ -76,7 +77,13 @@ export class QuizResolver {
   }
 
   @Mutation(() => Quiz)
-  async removeQuestion(@Args('id') questionId: number) {}
+  async removeQuestion(@Args('id') questionId: number) {
+    const response = await this.quizService.deleteQuestion(questionId);
+    if (response.responseStatus === ResponseStatus.FAILURE) {
+      this.handleQuestionDeleteFailureResponse(response.info);
+    }
+    return response.quiz;
+  }
 
   @Mutation(() => Quiz)
   async deleteQuiz(@Args('id') id: number): Promise<Quiz> {
@@ -102,6 +109,10 @@ export class QuizResolver {
 
   private handleQuizDeleteFailureResponse(info: string) {
     throw new QuizDeletionError(info);
+  }
+
+  private handleQuestionDeleteFailureResponse(info: string) {
+    throw new QuestionDeletionError(info);
   }
 
   private handleQueryQuizByTitleFailureResponse(info: string) {

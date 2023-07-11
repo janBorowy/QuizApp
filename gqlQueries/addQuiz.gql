@@ -10,7 +10,7 @@ mutation {
 }
 
 mutation {
-  question(question: {
+  addQuestion(question: {
     description: "When was the Battle of Grunwald fought?",
     answers: ["1408", "1409", "1410", "1411"],
     correctAnswerString: "2",
@@ -23,12 +23,12 @@ mutation {
 }
 
 mutation {
-  question(question: {
+  addQuestion(question: {
     description: "Who of the following were polish kings?",
     answers: ["Mieszko I", "Bezprym", "Bolesław I Chrobry", "Mieszko II"],
     correctAnswerString: "0011",
     possibleScore: 2
-    quizId: 2
+    quizId: 1
     type: MULTIPLE
   }) {
     id
@@ -41,7 +41,7 @@ mutation {
     answers: [],
     correctAnswerString: "1795",
     possibleScore: 2
-    quizId: 2
+    quizId: 1
     type: PLAIN
   }) {
     questions {
@@ -62,12 +62,23 @@ mutation {
       ]
       correctAnswerString: "2103"
       possibleScore: 3
-      quizId: 2
+      quizId: 1
       type: SORT
     }
   ) {
     questions {
       description
     }
+  }
+}
+
+query {
+  solveQuiz(solveQuizInput: {
+    quizId: 1,
+    answers: ["1795", "2", "3102", "0100"]
+  }) {
+    percent
+    sum
+    results
   }
 }

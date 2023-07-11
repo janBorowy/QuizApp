@@ -75,3 +75,5 @@ example:
 ### Important
 Note that number of answers for question is not restricted, keep in mind that trying to answer
 a question with incorrect string length(dependent on number of answers) will result in error.
+
+Example queries are located in `gqlQueries` folder
