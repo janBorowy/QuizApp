@@ -18,6 +18,8 @@ import { QuizDeletionError } from '../exceptions/QuizDeletion.error';
 import { QuestionInput } from './types/question.input';
 import { QuestionCouldNotBeAddedError } from '../exceptions/QuestionCouldNotBeAdded.error';
 import { Question } from '../entities/question';
+import { SolveResult } from '../entities/solve.result';
+import { SolveQuizInput } from './types/SolveQuiz.input';
 
 @Resolver((of) => Quiz)
 export class QuizResolver {
@@ -42,6 +44,15 @@ export class QuizResolver {
       this.handleQueryQuizByTitleFailureResponse(response.info);
     }
     return response.quizzes;
+  }
+
+  @Query(() => SolveResult)
+  async solveQuiz(@Args('solveQuizInput') solveQuizInput: SolveQuizInput) {
+    const results = await this.quizService.solveQuiz(
+      solveQuizInput.quizId,
+      solveQuizInput.answers,
+    );
+    return results;
   }
 
   @Mutation((returns) => Quiz)

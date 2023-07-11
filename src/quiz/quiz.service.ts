@@ -17,6 +17,8 @@ import { QuizValidator } from './quiz.validator';
 import { QuestionInput } from './types/question.input';
 import { QuestionValidator } from './question.validator';
 import { Question } from '../entities/question';
+import { SolveResult } from '../entities/solve.result';
+import { QuizGrader } from './quiz.grader';
 
 @Injectable()
 export class QuizService {
@@ -89,6 +91,19 @@ export class QuizService {
       );
     }
     return this.addQuestion(question);
+  }
+
+  async solveQuiz(quizId: number, answers: string[]): Promise<SolveResult> {
+    const questions = await this.databaseFacade.findAllQuizQuestions(quizId);
+    const results = QuizGrader.gradeQuiz(questions, answers);
+    const sum = results.reduce(
+      (partialSum, element) => partialSum + element,
+      0,
+    );
+    return {
+      results: results,
+      sum: sum,
+    };
   }
 
   private async createQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {

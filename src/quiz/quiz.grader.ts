@@ -3,9 +3,9 @@ import { Question, QuestionType } from '../entities/question';
 import { InvalidQuizGraderInputError } from '../exceptions/InvalidQuizGraderInput.error';
 
 export class QuizGrader {
-  static gradeQuiz(quiz: Quiz, answers: string[]): Array<number> {
+  static gradeQuiz(questions: Question[], answers: string[]): Array<number> {
     const questionAndAnswersArray = this.mergeQuestionAndAnswerArrays(
-      quiz.questions,
+      questions,
       answers,
     );
     const results: Array<number> = [];
