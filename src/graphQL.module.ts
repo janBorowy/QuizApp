@@ -3,6 +3,6 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 export const graphQLModule = GraphQLModule.forRoot<ApolloDriverConfig>({
   driver: ApolloDriver,
-  autoSchemaFile: 'src/schema.gql',
+  autoSchemaFile: 'schema.gql',
   sortSchema: true,
 });
