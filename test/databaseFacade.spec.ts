@@ -9,14 +9,22 @@ import {
   anotherExampleQuiz,
   exampleQuiz,
   exampleQuizWithId1,
+  singleQuestion,
+  singleQuestionInput,
 } from './testing.data';
 import { RecordNotFoundError } from '../src/exceptions/recordNotFound.error';
+import { Question } from '../src/entities/question';
+import { loadTestQuestionRepositoryImplementation } from './question.repository.test.impl';
+import { QuestionInput } from '../src/quiz/types/question.input';
 
 describe('DatabaseFacade', () => {
   let databaseFacade: DatabaseFacade;
   let quizRepository: Repository<Quiz>;
+  let questionRepository: Repository<Question>;
   const quizRepositoryToken = getRepositoryToken(Quiz);
-  const repositoryContents = new Map<number, Quiz>();
+  const questionRepositoryToken = getRepositoryToken(Question);
+  const quizRepositoryContents = new Map<number, Quiz>();
+  const questionRepositoryContents = new Map<number, Question>();
 
   beforeEach(async () => {
     const testingModule: TestingModule = await Test.createTestingModule({
@@ -32,15 +40,28 @@ describe('DatabaseFacade', () => {
             findBy: jest.fn(),
           },
         },
+        {
+          provide: questionRepositoryToken,
+          useValue: {
+            findOneBy: jest.fn(),
+            save: jest.fn(),
+            delete: jest.fn(),
+            create: jest.fn(),
+            findBy: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     databaseFacade = testingModule.get<DatabaseFacade>(DatabaseFacade);
     quizRepository = testingModule.get<Repository<Quiz>>(quizRepositoryToken);
+    questionRepository = testingModule.get<Repository<Question>>(
+      questionRepositoryToken,
+    );
   });
 
   afterEach(() => {
-    repositoryContents.clear();
+    quizRepositoryContents.clear();
   });
 
   it('Injected providers should be defined', () => {
@@ -62,7 +83,10 @@ describe('DatabaseFacade', () => {
   });
 
   it('Should save properly with given id', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     const savedQuiz = await databaseFacade.saveQuiz(exampleQuiz);
     expect(savedQuiz).toEqual(exampleQuiz);
@@ -76,7 +100,10 @@ describe('DatabaseFacade', () => {
   });
 
   it('Should delete record properly', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     const savedQuiz = await databaseFacade.saveQuiz(exampleQuiz);
     await databaseFacade.deleteQuizById(savedQuiz.id);
@@ -84,7 +111,10 @@ describe('DatabaseFacade', () => {
   });
 
   it('Should throw when trying to delete absent record', () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     expect(databaseFacade.deleteQuizById(exampleQuiz.id)).rejects.toThrow(
       RecordNotFoundError,
@@ -92,7 +122,10 @@ describe('DatabaseFacade', () => {
   });
 
   it('Should find quiz by query', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     const response = await databaseFacade.saveQuiz(exampleQuiz);
     const found = (
@@ -103,5 +136,28 @@ describe('DatabaseFacade', () => {
 
     expect(found).not.toBeNull();
     expect(found).toEqual(response);
+  });
+
+  it('Should add question to quiz correctly', async () => {
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
+    loadTestQuestionRepositoryImplementation(
+      questionRepository,
+      questionRepositoryContents,
+    );
+
+    const savedQuiz = await databaseFacade.saveQuiz(exampleQuiz);
+    const questionToSave = {
+      ...singleQuestionInput,
+      quizId: savedQuiz.id,
+    };
+
+    const savedQuestionQuiz = await databaseFacade.saveQuestion(questionToSave);
+
+    expect(savedQuestionQuiz.questions[0].description).toEqual(
+      questionToSave.description,
+    );
   });
 });

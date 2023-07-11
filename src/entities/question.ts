@@ -2,18 +2,17 @@ import {
   Column,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
 import { Quiz } from './quiz';
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { Answer } from './answer';
 
 @Entity()
 @ObjectType()
 export class Question {
   @PrimaryGeneratedColumn()
+  @Field()
   id: number;
 
   @Field()
@@ -36,9 +35,9 @@ export class Question {
   @Column()
   correctAnswerString: string;
 
-  @Field((type) => [Answer])
-  @OneToMany((type) => Answer, (answer) => answer.question, { cascade: true })
-  answers: Answer[];
+  @Field((type) => [String])
+  @Column('varchar', { array: true })
+  answers: string[];
 
   @ManyToOne(() => Quiz)
   quiz: Quiz;

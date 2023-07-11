@@ -16,6 +16,7 @@ import { QuizNotFoundError } from '../exceptions/QuizNotFound.error';
 import { QuizValidator } from './quiz.validator';
 import { QuestionInput } from './types/question.input';
 import { QuestionValidator } from './question.validator';
+import { Question } from '../entities/question';
 
 @Injectable()
 export class QuizService {
@@ -31,6 +32,11 @@ export class QuizService {
   async findQuizById(quizId: number): Promise<QuizServiceResponse> {
     const quiz = await this.databaseFacade.findQuizById(quizId);
     return this.createFindResponse(quiz);
+  }
+
+  async findAllQuizQuestion(quizId: number): Promise<Question[]> {
+    const quizzes = await this.databaseFacade.findAllQuizQuestions(quizId);
+    return quizzes;
   }
 
   async findQuizByTitle(
@@ -71,11 +77,10 @@ export class QuizService {
     }
   }
 
-  async addQuestionToQuizWithId(
+  async addQuestionToQuiz(
     question: QuestionInput,
-    quizId: number,
   ): Promise<QuizServiceResponse> {
-    await this.checkIfQuizExists(quizId);
+    await this.checkIfQuizExists(question.quizId);
     const validationResult = this.validateQuestion(question);
     if (validationResult.status === ValidationStatus.FAILURE) {
       return this.createAddQuestionValidationFailedResponse(
@@ -83,7 +88,7 @@ export class QuizService {
         validationResult.info,
       );
     }
-    return this.addQuestion(question, quizId);
+    return this.addQuestion(question);
   }
 
   private async createQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {
@@ -242,9 +247,9 @@ export class QuizService {
       .build();
   }
 
-  private async addQuestion(questionInput: QuestionInput, quizId: number) {
-    await this.databaseFacade.saveQuestion(questionInput, quizId);
-    return this.createAddQuestionSuccessResponse();
+  private async addQuestion(questionInput: QuestionInput) {
+    const quiz = await this.databaseFacade.saveQuestion(questionInput);
+    return this.createAddQuestionSuccessResponse(quiz);
   }
 
   private async checkIfQuizExists(quizId: number) {
@@ -254,11 +259,12 @@ export class QuizService {
     }
   }
 
-  private createAddQuestionSuccessResponse() {
+  private createAddQuestionSuccessResponse(quiz: Quiz) {
     const builder = new QuizServiceResponseBuilder();
     return builder
       .responseStatus(ResponseStatus.SUCCESS)
       .action(QuizServiceAction.CREATE)
+      .quiz(quiz)
       .build();
   }
 }

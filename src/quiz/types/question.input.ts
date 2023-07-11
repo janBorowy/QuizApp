@@ -6,7 +6,7 @@ export class QuestionInput implements Partial<Question> {
   @Field()
   description: string;
 
-  @Field()
+  @Field((type) => QuestionType)
   type: QuestionType;
 
   @Field((type) => Int)
@@ -17,4 +17,7 @@ export class QuestionInput implements Partial<Question> {
 
   @Field()
   quizId: number;
+
+  @Field((type) => [String])
+  answers: string[];
 }

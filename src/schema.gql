@@ -2,11 +2,8 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Answer {
-  content: String!
-}
-
 type Mutation {
+  addQuestion(question: QuestionInput!): Quiz!
   addQuiz(quiz: QuizInput!): Quiz!
   deleteQuiz(id: Float!): Quiz!
 }
@@ -17,10 +14,20 @@ type Query {
 }
 
 type Question {
-  answers: [Answer!]!
+  answers: [String!]!
   correctAnswerString: String!
   description: String!
+  id: Float!
   possibleScore: Float!
+  type: questionType!
+}
+
+input QuestionInput {
+  answers: [String!]!
+  correctAnswerString: String!
+  description: String!
+  possibleScore: Int!
+  quizId: Float!
   type: questionType!
 }
 

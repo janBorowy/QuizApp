@@ -5,11 +5,13 @@ import { Quiz } from '../src/entities/quiz';
 import { Repository } from 'typeorm';
 import { QuizService } from '../src/quiz/quiz.service';
 import { loadTestQuizRepositoryImplementation } from './quiz.repository.test.impl';
-import { exampleQuiz } from './testing.data';
+import { exampleQuiz, singleQuestionInput } from './testing.data';
 import {
   QuizServiceAction,
   ResponseStatus,
 } from '../src/quiz/quiz.service.response';
+import { Question } from '../src/entities/question';
+import { loadTestQuestionRepositoryImplementation } from './question.repository.test.impl';
 
 async function findQuizById(id: number, quizService: QuizService) {
   return (await quizService.findQuizById(id)).quiz;
@@ -17,9 +19,12 @@ async function findQuizById(id: number, quizService: QuizService) {
 
 describe('QuizService', () => {
   let quizRepository: Repository<Quiz>;
+  let questionRepository: Repository<Question>;
   let quizService: QuizService;
   const quizRepositoryToken = getRepositoryToken(Quiz);
-  const repositoryContents = new Map<number, Quiz>();
+  const questionRepositoryToken = getRepositoryToken(Question);
+  const quizRepositoryContents = new Map<number, Quiz>();
+  const questionRepositoryContents = new Map<number, Question>();
 
   beforeEach(async () => {
     const testingModule: TestingModule = await Test.createTestingModule({
@@ -36,19 +41,35 @@ describe('QuizService', () => {
             findBy: jest.fn(),
           },
         },
+        {
+          provide: questionRepositoryToken,
+          useValue: {
+            findOneBy: jest.fn(),
+            save: jest.fn(),
+            delete: jest.fn(),
+            create: jest.fn(),
+            findBy: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     quizService = testingModule.get<QuizService>(QuizService);
     quizRepository = testingModule.get<Repository<Quiz>>(quizRepositoryToken);
+    questionRepository = testingModule.get<Repository<Question>>(
+      questionRepositoryToken,
+    );
   });
 
   afterEach(() => {
-    repositoryContents.clear();
+    quizRepositoryContents.clear();
   });
 
   it('Should find quiz', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
     const savedQuiz = await quizRepository.save(exampleQuiz);
 
     const response = await quizService.findQuizById(savedQuiz.id);
@@ -58,7 +79,10 @@ describe('QuizService', () => {
   });
 
   it('Should properly create new quiz', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     const response = await quizService.createNewQuiz(exampleQuiz);
     expect(response.responseStatus).toEqual(ResponseStatus.SUCCESS);
@@ -69,7 +93,10 @@ describe('QuizService', () => {
   });
 
   it('Should return null when trying to save entities not passing validation', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     const quiz = {
       id: 1,
@@ -86,7 +113,10 @@ describe('QuizService', () => {
   });
 
   it('Should delete quiz properly', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     const saveResponse = await quizService.createNewQuiz(exampleQuiz);
     const response = await quizService.deleteQuizById(exampleQuiz.id);
@@ -97,7 +127,10 @@ describe('QuizService', () => {
   });
 
   it('Should return proper response when trying to delete non existent quiz', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     const response = await quizService.deleteQuizById(1);
 
@@ -106,12 +139,38 @@ describe('QuizService', () => {
   });
 
   it('Should find quiz by title', async () => {
-    loadTestQuizRepositoryImplementation(quizRepository, repositoryContents);
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
 
     const saveResponse = await quizService.createNewQuiz(exampleQuiz);
     const response = await quizService.findQuizByTitle(exampleQuiz.title);
 
     expect(response.responseStatus).toEqual(ResponseStatus.SUCCESS);
     expect(response.quizzes[0]).toEqual(exampleQuiz);
+  });
+
+  it('Should add question to quiz properly', async () => {
+    loadTestQuizRepositoryImplementation(
+      quizRepository,
+      quizRepositoryContents,
+    );
+    loadTestQuestionRepositoryImplementation(
+      questionRepository,
+      questionRepositoryContents,
+    );
+
+    const savedQuizResponse = await quizService.createNewQuiz(exampleQuiz);
+    const questionToSave = {
+      ...singleQuestionInput,
+      quizId: savedQuizResponse.quiz.id,
+    };
+
+    const response = await quizService.addQuestionToQuiz(questionToSave);
+
+    expect(response.quiz.questions[0].description).toEqual(
+      questionToSave.description,
+    );
   });
 });

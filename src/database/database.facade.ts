@@ -34,19 +34,28 @@ export class DatabaseFacade {
     return quizPromise;
   }
 
-  async saveQuestion(
-    questionInput: QuestionInput,
-    quizId: number,
-  ): Promise<Question> {
-    const quiz = await this.findQuizById(quizId);
-    const question = {
+  findAllQuizQuestions(quizId: number): Promise<Question[]> {
+    const questionsPromise = this.questionRepository.findBy({
+      quiz: {
+        id: quizId,
+      },
+    });
+    return questionsPromise;
+  }
+
+  async saveQuestion(questionInput: QuestionInput): Promise<Quiz> {
+    const quiz = await this.quizRepository.findOne({
+      where: { id: questionInput.quizId },
+      relations: ['questions'],
+    });
+    const questionToAdd = {
       ...questionInput,
-      quizId,
       quiz,
-      answers: [],
     };
-    const questionPromise = this.questionRepository.save(question);
-    return questionPromise;
+    const question = await this.questionRepository.create(questionToAdd);
+    quiz.questions.push(question);
+    const quizPromise = this.quizRepository.save(quiz);
+    return quizPromise;
   }
 
   async deleteQuizById(quizId: number) {

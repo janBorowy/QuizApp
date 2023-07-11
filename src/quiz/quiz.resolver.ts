@@ -1,7 +1,13 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Query,
+  ResolveField,
+  Resolver,
+  Root,
+} from '@nestjs/graphql';
 import { Inject } from '@nestjs/common';
 import { QuizService } from './quiz.service';
-import { QuestionService } from '../question/question.service';
 import { Quiz } from '../entities/quiz';
 import { QuizInput } from './types/quiz.input';
 import { ResponseStatus } from './quiz.service.response';
@@ -9,14 +15,15 @@ import { QuizNotFoundError } from '../exceptions/QuizNotFound.error';
 import { RuntimeException } from '@nestjs/core/errors/exceptions';
 import { QuizCreationError } from '../exceptions/QuizCreation.error';
 import { QuizDeletionError } from '../exceptions/QuizDeletion.error';
+import { QuestionInput } from './types/question.input';
+import { QuestionCouldNotBeAddedError } from '../exceptions/QuestionCouldNotBeAdded.error';
+import { Question } from '../entities/question';
 
 @Resolver((of) => Quiz)
 export class QuizResolver {
   constructor(
     @Inject(QuizService)
     private quizService: QuizService,
-    @Inject(QuestionService)
-    private questionService: QuestionService,
   ) {}
 
   @Query(() => Quiz)
@@ -47,9 +54,18 @@ export class QuizResolver {
   }
 
   @Mutation((returns) => Quiz)
-  async question(
+  async addQuestion(
     @Args('question') questionInput: QuestionInput,
-  ): Promise<Quiz> {}
+  ): Promise<Quiz> {
+    const response = await this.quizService.addQuestionToQuiz(questionInput);
+    if (response.responseStatus === ResponseStatus.FAILURE) {
+      this.handleAddQuestionToQuizFailureResponse(response.info);
+    }
+    return response.quiz;
+  }
+
+  @Mutation(() => Quiz)
+  async removeQuestion(@Args('id') questionId: number) {}
 
   @Mutation(() => Quiz)
   async deleteQuiz(@Args('id') id: number): Promise<Quiz> {
@@ -59,6 +75,12 @@ export class QuizResolver {
     }
     return response.quiz;
   }
+
+  @ResolveField()
+  questions(@Root() quiz: Quiz): Promise<Question[]> {
+    return this.quizService.findAllQuizQuestion(quiz.id);
+  }
+
   private handleQuizByIdQueryFailureResponse(info: string) {
     throw new QuizNotFoundError(info);
   }
@@ -73,5 +95,9 @@ export class QuizResolver {
 
   private handleQueryQuizByTitleFailureResponse(info: string) {
     throw new RuntimeException('Unknown error occurred');
+  }
+
+  private handleAddQuestionToQuizFailureResponse(info: string) {
+    throw new QuestionCouldNotBeAddedError(info);
   }
 }
