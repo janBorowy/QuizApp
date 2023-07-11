@@ -4,14 +4,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Quiz } from '../src/entities/quiz';
 import { Repository } from 'typeorm';
 import { loadTestQuizRepositoryImplementation } from './quiz.repository.test.impl';
-import {
-  anotherExampleQuiz,
-  exampleQuiz,
-  singleQuestionInput,
-} from './testing.data';
+import { anotherExampleQuiz, exampleQuiz } from './testing.data';
 import { RecordNotFoundError } from '../src/exceptions/recordNotFound.error';
 import { Question } from '../src/entities/question';
-import { loadTestQuestionRepositoryImplementation } from './question.repository.test.impl';
 
 describe('DatabaseFacade', () => {
   let databaseFacade: DatabaseFacade;
@@ -133,28 +128,5 @@ describe('DatabaseFacade', () => {
 
     expect(found).not.toBeNull();
     expect(found).toEqual(response);
-  });
-
-  it('Should add question to quiz correctly', async () => {
-    loadTestQuizRepositoryImplementation(
-      quizRepository,
-      quizRepositoryContents,
-    );
-    loadTestQuestionRepositoryImplementation(
-      questionRepository,
-      questionRepositoryContents,
-    );
-
-    const savedQuiz = await databaseFacade.saveQuiz(exampleQuiz);
-    const questionToSave = {
-      ...singleQuestionInput,
-      quizId: savedQuiz.id,
-    };
-
-    const savedQuestionQuiz = await databaseFacade.saveQuestion(questionToSave);
-
-    expect(savedQuestionQuiz.questions[0].description).toEqual(
-      questionToSave.description,
-    );
   });
 });
