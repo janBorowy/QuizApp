@@ -1,4 +1,3 @@
-import { Question, QuestionType } from '../src/entities/question';
 import { QuizGrader } from '../src/quiz/quiz.grader';
 import {
   multipleQuestion,
@@ -22,12 +21,12 @@ const quizExample = {
 
 describe('QuizGrader', () => {
   it('Should grade first quiz attempt correctly', () => {
-    const result = QuizGrader.gradeQuiz(quizExample, firstAnswers);
+    const result = QuizGrader.gradeQuiz(quizExample.questions, firstAnswers);
     expect(result).toEqual(firstExpectedResult);
   });
 
   it('Should grade second quiz attempt correctly', () => {
-    const result = QuizGrader.gradeQuiz(quizExample, secondAnswers);
+    const result = QuizGrader.gradeQuiz(quizExample.questions, secondAnswers);
     expect(result).toEqual(secondExpectedResult);
   });
 });

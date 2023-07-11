@@ -1,6 +1,5 @@
 import { Quiz } from '../src/entities/quiz';
 import { Question, QuestionType } from '../src/entities/question';
-import { QuestionInput } from '../src/quiz/types/question.input';
 
 export const exampleQuiz: Quiz = {
   id: 1,

@@ -3,12 +3,13 @@ import { Quiz } from '../entities/quiz';
 import { QuizInput } from './types/quiz.input';
 import { Validator } from '../validation/validator';
 
-export const INVALID_TITLE_LENGTH_MESSAGE = 'Invalid title length';
+export const INVALID_TITLE_LENGTH_MESSAGE =
+  'Invalid title length - title should be between 5 to 100 characters long';
 
 const titleLengthValidationPart: ValidationPart<Quiz> = new ValidationPart(
   INVALID_TITLE_LENGTH_MESSAGE,
   (quiz: QuizInput): boolean => {
-    return quiz.title.length != 0;
+    return quiz.title.length >= 5 && quiz.title.length <= 100;
   },
 );
 

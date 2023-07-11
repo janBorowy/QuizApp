@@ -1,4 +1,4 @@
-import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class SolveResult {
@@ -7,4 +7,7 @@ export class SolveResult {
 
   @Field()
   sum: number;
+
+  @Field()
+  percent: number;
 }

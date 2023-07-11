@@ -23,4 +23,14 @@ describe('QuizValidator', () => {
     expect(result.info).toBe(INVALID_TITLE_LENGTH_MESSAGE);
     expect(result.entity).toBe(quiz);
   });
+
+  it('Should reject too long title quiz', () => {
+    quiz.title =
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const result = new QuizValidator(quiz).validate();
+
+    expect(result.status).toBe(ValidationStatus.FAILURE);
+    expect(result.info).toBe(INVALID_TITLE_LENGTH_MESSAGE);
+    expect(result.entity).toBe(quiz);
+  });
 });

@@ -94,16 +94,10 @@ export class QuizService {
   }
 
   async solveQuiz(quizId: number, answers: string[]): Promise<SolveResult> {
+    await this.checkIfQuizExists(quizId);
     const questions = await this.databaseFacade.findAllQuizQuestions(quizId);
     const results = QuizGrader.gradeQuiz(questions, answers);
-    const sum = results.reduce(
-      (partialSum, element) => partialSum + element,
-      0,
-    );
-    return {
-      results: results,
-      sum: sum,
-    };
+    return this.transformResultsToSolveResult(questions, results);
   }
 
   private async createQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {
@@ -281,5 +275,28 @@ export class QuizService {
       .action(QuizServiceAction.CREATE)
       .quiz(quiz)
       .build();
+  }
+
+  private transformResultsToSolveResult(
+    questions: Array<Question>,
+    results: Array<number>,
+  ): SolveResult {
+    const pointsAcquired = this.sumAllArrayElements(results);
+    const questionPoints = questions.map((question) => question.possibleScore);
+    const possiblePointsToGain = this.sumAllArrayElements(questionPoints);
+    const percentageAcquired = Math.round(
+      (pointsAcquired / possiblePointsToGain) * 100,
+    );
+    return {
+      results: results,
+      sum: pointsAcquired,
+      percent: percentageAcquired,
+    };
+  }
+
+  private sumAllArrayElements(array: Array<number>) {
+    return array.reduce((partialSum, element) => {
+      return partialSum + element;
+    });
   }
 }

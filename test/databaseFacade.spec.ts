@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseFacade } from '../src/database/database.facade';
-import { RecordAlreadyExistsError } from '../src/exceptions/recordAlreadyExists.error';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Quiz } from '../src/entities/quiz';
 import { Repository } from 'typeorm';
@@ -8,14 +7,11 @@ import { loadTestQuizRepositoryImplementation } from './quiz.repository.test.imp
 import {
   anotherExampleQuiz,
   exampleQuiz,
-  exampleQuizWithId1,
-  singleQuestion,
   singleQuestionInput,
 } from './testing.data';
 import { RecordNotFoundError } from '../src/exceptions/recordNotFound.error';
 import { Question } from '../src/entities/question';
 import { loadTestQuestionRepositoryImplementation } from './question.repository.test.impl';
-import { QuestionInput } from '../src/quiz/types/question.input';
 
 describe('DatabaseFacade', () => {
   let databaseFacade: DatabaseFacade;
@@ -38,6 +34,7 @@ describe('DatabaseFacade', () => {
             delete: jest.fn(),
             create: jest.fn(),
             findBy: jest.fn(),
+            findOne: jest.fn(),
           },
         },
         {

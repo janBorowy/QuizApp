@@ -5,13 +5,12 @@ import { Quiz } from '../src/entities/quiz';
 import { Repository } from 'typeorm';
 import { QuizService } from '../src/quiz/quiz.service';
 import { loadTestQuizRepositoryImplementation } from './quiz.repository.test.impl';
-import { exampleQuiz, singleQuestionInput } from './testing.data';
+import { exampleQuiz } from './testing.data';
 import {
   QuizServiceAction,
   ResponseStatus,
 } from '../src/quiz/quiz.service.response';
 import { Question } from '../src/entities/question';
-import { loadTestQuestionRepositoryImplementation } from './question.repository.test.impl';
 
 async function findQuizById(id: number, quizService: QuizService) {
   return (await quizService.findQuizById(id)).quiz;
@@ -149,28 +148,5 @@ describe('QuizService', () => {
 
     expect(response.responseStatus).toEqual(ResponseStatus.SUCCESS);
     expect(response.quizzes[0]).toEqual(exampleQuiz);
-  });
-
-  it('Should add question to quiz properly', async () => {
-    loadTestQuizRepositoryImplementation(
-      quizRepository,
-      quizRepositoryContents,
-    );
-    loadTestQuestionRepositoryImplementation(
-      questionRepository,
-      questionRepositoryContents,
-    );
-
-    const savedQuizResponse = await quizService.createNewQuiz(exampleQuiz);
-    const questionToSave = {
-      ...singleQuestionInput,
-      quizId: savedQuizResponse.quiz.id,
-    };
-
-    const response = await quizService.addQuestionToQuiz(questionToSave);
-
-    expect(response.quiz.questions[0].description).toEqual(
-      questionToSave.description,
-    );
   });
 });

@@ -1,10 +1,9 @@
 import { ValidationPart } from '../validation/validation.part';
-import { Quiz } from '../entities/quiz';
-import { QuizInput } from './types/quiz.input';
 import { Validator } from '../validation/validator';
 import { QuestionInput } from './types/question.input';
 
-export const INVALID_DESCRIPTION_LENGTH_MESSAGE = 'Invalid title length';
+export const INVALID_DESCRIPTION_LENGTH_MESSAGE =
+  "Invalid description length - can't be empty";
 
 const descriptionLengthValidationPart: ValidationPart<QuestionInput> =
   new ValidationPart(
