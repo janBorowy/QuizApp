@@ -50,7 +50,7 @@ export class QuizService {
     return quizzes;
   }
 
-  private async createQuiz(quiz: QuizInput): Promise<Quiz> {
+  async createQuiz(quiz: QuizInput): Promise<Quiz> {
     const savedQuiz = await this.quizDatabaseFacade.saveQuiz(quiz);
     return savedQuiz;
   }

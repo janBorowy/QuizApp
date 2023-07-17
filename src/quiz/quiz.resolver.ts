@@ -44,7 +44,7 @@ export class QuizResolver {
 
   @Mutation((returns) => Quiz)
   async addQuiz(@Args('quiz') quizInput: QuizInput): Promise<Quiz> {
-    const quiz = await this.quizService.createNewQuiz(quizInput);
+    const quiz = await this.quizService.createQuiz(quizInput);
     return quiz;
   }
 
