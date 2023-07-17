@@ -22,7 +22,7 @@ export class QuizResolver {
   ) {}
 
   @Query(() => Quiz)
-  async quizById(@Args('id') id: number) {
+  async quiz(@Args('id') id: number) {
     const quiz = await this.quizService.findQuizById(id);
     return quiz;
   }
@@ -43,18 +43,17 @@ export class QuizResolver {
   }
 
   @Mutation((returns) => Quiz)
-  async addQuiz(@Args('quiz') quizInput: QuizInput): Promise<Quiz> {
-    const quiz = await this.quizService.createQuiz(quizInput);
-    return quiz;
+  addQuiz(@Args('quiz') quizInput: QuizInput): Promise<Quiz> {
+    return this.quizService.createQuiz(quizInput);
   }
 
   @Mutation(() => Quiz)
-  async deleteQuiz(@Args('id') id: number): Promise<void> {
-    await this.quizService.deleteQuizById(id);
+  deleteQuiz(@Args('id') id: number) {
+    this.quizService.deleteQuizById(id);
   }
 
   @ResolveField((type) => Quiz)
-  async questions(@Root() quiz: Quiz): Promise<Question[]> {
-    return await this.quizService.findAllQuizQuestion(quiz.id);
+  questions(@Root() quiz: Quiz): Promise<Question[]> {
+    return this.quizService.findAllQuizQuestions(quiz.id);
   }
 }

@@ -18,6 +18,18 @@ export class QuizService {
     private questionDatabaseFacade: QuestionDatabaseFacade,
   ) {}
 
+  async createQuiz(quiz: QuizInput): Promise<Quiz> {
+    const savedQuiz = await this.quizDatabaseFacade.saveQuiz(quiz);
+
+    await Promise.all(
+      quiz.questionInputs.map((questionInput) =>
+        this.questionDatabaseFacade.saveQuestion(questionInput, savedQuiz.id),
+      ),
+    );
+
+    return this.quizDatabaseFacade.findQuizById(savedQuiz.id);
+  }
+
   async findQuizById(quizId: number): Promise<Quiz> {
     const quiz = await this.quizDatabaseFacade.findQuizById(quizId);
     return quiz;
@@ -43,19 +55,11 @@ export class QuizService {
     return this.transformResultsToSolveResult(questions, results);
   }
 
-  async findAllQuizQuestion(quizId: number): Promise<Question[]> {
+  async findAllQuizQuestions(quizId: number): Promise<Question[]> {
     const quizzes = await this.questionDatabaseFacade.findAllQuizQuestions(
       quizId,
     );
     return quizzes;
-  }
-
-  async createQuiz(quiz: QuizInput): Promise<Quiz> {
-    const savedQuiz = await this.quizDatabaseFacade.saveQuiz(quiz);
-    quiz.questionInputs.forEach((questionInput) =>
-      this.questionDatabaseFacade.saveQuestion(questionInput, savedQuiz.id),
-    );
-    return this.quizDatabaseFacade.findQuizById(savedQuiz.id);
   }
 
   private async checkIfQuizExists(quizId: number) {

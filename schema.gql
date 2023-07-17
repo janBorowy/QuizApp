@@ -8,7 +8,7 @@ type Mutation {
 }
 
 type Query {
-  quizById(id: Float!): Quiz!
+  quiz(id: Float!): Quiz!
   quizByTitle(title: String!): [Quiz!]!
   solveQuiz(solveQuizInput: SolveQuizInput!): SolveResult!
 }
