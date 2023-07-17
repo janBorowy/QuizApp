@@ -1,4 +1,4 @@
-import { QuizGrader } from '../src/quiz/quiz.grader';
+import { QuizGrader } from '../src/quiz/quiz-grader';
 import {
   multipleQuestion,
   plainQuestion,

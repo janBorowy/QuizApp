@@ -1,7 +1,6 @@
-import { Repository, DeleteResult, DeepPartial } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { Quiz } from '../src/entities/quiz';
 import { FindOptions } from '@nestjs/schematics';
-import { QuizInput } from '../src/quiz/types/quiz.input';
 
 interface FindOneByFindOptions extends FindOptions {
   id: number;

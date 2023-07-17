@@ -1,6 +1,6 @@
-import { ValidationPart } from '../validation/validation.part';
+import { ValidationPart } from '../validation/validation-part';
 import { Validator } from '../validation/validator';
-import { QuestionInput } from './types/question.input';
+import { QuestionInput } from './types/question-input';
 
 export const INVALID_DESCRIPTION_LENGTH_MESSAGE =
   "Invalid description length - can't be empty";

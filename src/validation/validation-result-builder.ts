@@ -1,4 +1,4 @@
-import { ValidationResult, ValidationStatus } from './validation.result';
+import { ValidationResult, ValidationStatus } from './validation-result';
 
 export class ValidationResultBuilder {
   private validationResult: ValidationResult;

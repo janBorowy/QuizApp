@@ -9,18 +9,18 @@ import {
 import { Inject } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { Quiz } from '../entities/quiz';
-import { QuizInput } from './types/quiz.input';
-import { ResponseStatus } from './quiz.service.response';
-import { QuizNotFoundError } from '../exceptions/QuizNotFound.error';
+import { QuizInput } from './types/quiz-input';
+import { ResponseStatus } from './quiz-service-response';
+import { QuizNotFoundError } from '../exceptions/quiz-not-found.error';
 import { RuntimeException } from '@nestjs/core/errors/exceptions';
-import { QuizCreationError } from '../exceptions/QuizCreation.error';
-import { QuizDeletionError } from '../exceptions/QuizDeletion.error';
-import { QuestionInput } from './types/question.input';
-import { QuestionCouldNotBeAddedError } from '../exceptions/QuestionCouldNotBeAdded.error';
+import { QuestionCreationError } from '../exceptions/question-creation.error';
+import { QuizDeletionError } from '../exceptions/quiz-deletion.error';
+import { QuestionInput } from './types/question-input';
+import { QuestionCouldNotBeAddedError } from '../exceptions/question-could-not-be-added.error';
 import { Question } from '../entities/question';
-import { SolveResult } from '../entities/solve.result';
-import { SolveQuizInput } from './types/SolveQuiz.input';
-import { QuestionDeletionError } from '../exceptions/QuestionDeletion.error';
+import { SolveResult } from '../entities/solve-result';
+import { SolveQuizInput } from './types/solve-quiz.input';
+import { QuestionDeletionError } from '../exceptions/question-deletion.error';
 
 @Resolver((of) => Quiz)
 export class QuizResolver {
@@ -104,7 +104,7 @@ export class QuizResolver {
   }
 
   private handleQuizCreateFailureResponse(info: string) {
-    throw new QuizCreationError(info);
+    throw new QuestionCreationError(info);
   }
 
   private handleQuizDeleteFailureResponse(info: string) {

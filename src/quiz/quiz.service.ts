@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { DatabaseFacade } from '../database/database.facade';
-import { ValidationStatus } from '../validation/validation.result';
-import { RecordNotFoundError } from '../exceptions/recordNotFound.error';
+import { DatabaseFacade } from '../database/database-facade';
+import { ValidationStatus } from '../validation/validation-result';
+import { RecordNotFoundError } from '../exceptions/record-not-found.error';
 import {
   QuizServiceAction,
   QuizServiceMultipleResponse,
@@ -9,16 +9,16 @@ import {
   QuizServiceResponse,
   QuizServiceResponseBuilder,
   ResponseStatus,
-} from './quiz.service.response';
+} from './quiz-service-response';
 import { Quiz } from '../entities/quiz';
-import { QuizInput } from './types/quiz.input';
-import { QuizNotFoundError } from '../exceptions/QuizNotFound.error';
-import { QuizValidator } from './quiz.validator';
-import { QuestionInput } from './types/question.input';
-import { QuestionValidator } from './question.validator';
+import { QuizInput } from './types/quiz-input';
+import { QuizNotFoundError } from '../exceptions/quiz-not-found.error';
+import { QuizValidator } from './quiz-validator';
+import { QuestionInput } from './types/question-input';
+import { QuestionValidator } from './question-validator';
 import { Question } from '../entities/question';
-import { SolveResult } from '../entities/solve.result';
-import { QuizGrader } from './quiz.grader';
+import { SolveResult } from '../entities/solve-result';
+import { QuizGrader } from './quiz-grader';
 import { QueryFailedError } from 'typeorm';
 
 @Injectable()

@@ -1,6 +1,5 @@
-import { Quiz } from '../entities/quiz';
 import { Question, QuestionType } from '../entities/question';
-import { InvalidQuizGraderInputError } from '../exceptions/InvalidQuizGraderInput.error';
+import { InvalidQuizGraderInputError } from '../exceptions/invalid-quiz-grader-input.error';
 
 export class QuizGrader {
   static gradeQuiz(questions: Question[], answers: string[]): Array<number> {

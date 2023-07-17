@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseFacade } from '../src/database/database.facade';
+import { DatabaseFacade } from '../src/database/database-facade';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Quiz } from '../src/entities/quiz';
 import { Repository } from 'typeorm';
@@ -9,7 +9,7 @@ import { exampleQuiz } from './testing.data';
 import {
   QuizServiceAction,
   ResponseStatus,
-} from '../src/quiz/quiz.service.response';
+} from '../src/quiz/quiz-service-response';
 import { Question } from '../src/entities/question';
 
 async function findQuizById(id: number, quizService: QuizService) {

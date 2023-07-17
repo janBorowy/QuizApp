@@ -1,5 +1,5 @@
 import { Quiz } from '../entities/quiz';
-import { QuizInput } from './types/quiz.input';
+import { QuizInput } from './types/quiz-input';
 
 export class QuizServiceResponse {
   action: QuizServiceAction;

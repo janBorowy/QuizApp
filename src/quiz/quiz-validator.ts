@@ -1,6 +1,6 @@
-import { ValidationPart } from '../validation/validation.part';
+import { ValidationPart } from '../validation/validation-part';
 import { Quiz } from '../entities/quiz';
-import { QuizInput } from './types/quiz.input';
+import { QuizInput } from './types/quiz-input';
 import { Validator } from '../validation/validator';
 
 export const INVALID_TITLE_LENGTH_MESSAGE =

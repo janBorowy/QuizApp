@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseFacade } from '../src/database/database.facade';
+import { DatabaseFacade } from '../src/database/database-facade';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Quiz } from '../src/entities/quiz';
 import { Repository } from 'typeorm';
 import { loadTestQuizRepositoryImplementation } from './quiz.repository.test.impl';
 import { anotherExampleQuiz, exampleQuiz } from './testing.data';
-import { RecordNotFoundError } from '../src/exceptions/recordNotFound.error';
+import { RecordNotFoundError } from '../src/exceptions/record-not-found.error';
 import { Question } from '../src/entities/question';
 
 describe('DatabaseFacade', () => {

@@ -1,8 +1,6 @@
-import { ValidationResult, ValidationStatus } from './validation.result';
-import { ValidationResultBuilder } from './validation.result.builder';
-import { ValidationPart } from './validation.part';
-import { QuizInput } from '../quiz/types/quiz.input';
-import { Quiz } from '../entities/quiz';
+import { ValidationResult, ValidationStatus } from './validation-result';
+import { ValidationResultBuilder } from './validation-result-builder';
+import { ValidationPart } from './validation-part';
 
 export class Validator<T> {
   validationParts: ValidationPart<T>[];
