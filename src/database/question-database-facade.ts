@@ -24,9 +24,12 @@ export class QuestionDatabaseFacade {
     return questionsPromise;
   }
 
-  async saveQuestion(questionInput: QuestionInput): Promise<Quiz> {
+  async saveQuestion(
+    questionInput: QuestionInput,
+    quizId: number,
+  ): Promise<Quiz> {
     const quiz = await this.quizRepository.findOne({
-      where: { id: questionInput.quizId },
+      where: { id: quizId },
       relations: ['questions'],
     });
     const questionToAdd = {

@@ -52,7 +52,10 @@ export class QuizService {
 
   async createQuiz(quiz: QuizInput): Promise<Quiz> {
     const savedQuiz = await this.quizDatabaseFacade.saveQuiz(quiz);
-    return savedQuiz;
+    quiz.questionInputs.forEach((questionInput) =>
+      this.questionDatabaseFacade.saveQuestion(questionInput, savedQuiz.id),
+    );
+    return this.quizDatabaseFacade.findQuizById(savedQuiz.id);
   }
 
   private async checkIfQuizExists(quizId: number) {

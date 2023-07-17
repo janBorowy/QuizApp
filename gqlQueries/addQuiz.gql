@@ -2,83 +2,56 @@ mutation {
   addQuiz(quiz: {
     title: "Polish History Quiz",
     createdBy: "Dariusz Wawiórko",
+    questionInputs: [
+      {
+        description: "Who of the following were polish kings?",
+        answers: ["Mieszko I", "Bezprym", "Bolesław I Chrobry", "Mieszko II"],
+        correctAnswerString: "0011",
+        possibleScore: 2
+        quizId: 1
+        type: MULTIPLE
+      },
+      {
+        description: "When did Poland disappear from the maps?",
+        answers: [],
+        correctAnswerString: "1795",
+        possibleScore: 2
+        quizId: 1
+        type: PLAIN
+      },
+      {
+          description: "Sort the events chronologically"
+          answers: [
+            "Establishment of Jagiellonian University"
+            "Congress of Gniezno"
+            "Baptism of Poland"
+            "Union of Lublin"
+          ]
+          correctAnswerString: "2103"
+          possibleScore: 3
+          quizId: 1
+          type: SORT
+      },
+      {
+          description: "When was the Battle of Grunwald fought?",
+          answers: ["1408", "1409", "1410", "1411"],
+          correctAnswerString: "2",
+          possibleScore: 1
+          quizId: 1
+          type: SINGLE
+      }
+    ]
   }) {
     id
     title
     createdBy
-  }
-}
-
-mutation {
-  addQuestion(question: {
-    description: "When was the Battle of Grunwald fought?",
-    answers: ["1408", "1409", "1410", "1411"],
-    correctAnswerString: "2",
-    possibleScore: 1
-    quizId: 1
-    type: SINGLE
-  }) {
-    id
-  }
-}
-
-mutation {
-  addQuestion(question: {
-    description: "Who of the following were polish kings?",
-    answers: ["Mieszko I", "Bezprym", "Bolesław I Chrobry", "Mieszko II"],
-    correctAnswerString: "0011",
-    possibleScore: 2
-    quizId: 1
-    type: MULTIPLE
-  }) {
-    id
-  }
-}
-
-mutation {
-  addQuestion(question: {
-    description: "When did Poland disappear from the maps?",
-    answers: [],
-    correctAnswerString: "1795",
-    possibleScore: 2
-    quizId: 1
-    type: PLAIN
-  }) {
     questions {
       description
+      possibleScore
+      answers
+      correctAnswerString
+      id
+      type
     }
-  }
-}
-
-mutation {
-  addQuestion(
-    question: {
-      description: "Sort the events chronologically"
-      answers: [
-        "Establishment of Jagiellonian University"
-        "Congress of Gniezno"
-        "Baptism of Poland"
-        "Union of Lublin"
-      ]
-      correctAnswerString: "2103"
-      possibleScore: 3
-      quizId: 1
-      type: SORT
-    }
-  ) {
-    questions {
-      description
-    }
-  }
-}
-
-query {
-  solveQuiz(solveQuizInput: {
-    quizId: 1,
-    answers: ["1795", "2", "3102", "0100"]
-  }) {
-    percent
-    sum
-    results
   }
 }

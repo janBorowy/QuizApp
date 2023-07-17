@@ -17,9 +17,6 @@ export class QuestionInput implements Partial<Question> {
   @Field({ nullable: false })
   correctAnswerString: string;
 
-  @Field()
-  quizId: number;
-
   @Field((type) => [String])
   answers: string[];
 }

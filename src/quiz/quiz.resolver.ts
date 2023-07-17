@@ -54,7 +54,7 @@ export class QuizResolver {
   }
 
   @ResolveField((type) => Quiz)
-  questions(@Root() quiz: Quiz): Promise<Question[]> {
-    return this.quizService.findAllQuizQuestion(quiz.id);
+  async questions(@Root() quiz: Quiz): Promise<Question[]> {
+    return await this.quizService.findAllQuizQuestion(quiz.id);
   }
 }
