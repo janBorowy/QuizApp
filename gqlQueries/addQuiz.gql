@@ -15,7 +15,7 @@ mutation {
     answers: ["1408", "1409", "1410", "1411"],
     correctAnswerString: "2",
     possibleScore: 1
-    quizId: 2
+    quizId: 1
     type: SINGLE
   }) {
     id
@@ -53,7 +53,7 @@ mutation {
 mutation {
   addQuestion(
     question: {
-      description: "Save the events chronologically"
+      description: "Sort the events chronologically"
       answers: [
         "Establishment of Jagiellonian University"
         "Congress of Gniezno"

@@ -10,116 +10,68 @@ import { Inject } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { Quiz } from '../entities/quiz';
 import { QuizInput } from './types/quiz-input';
-import { ResponseStatus } from './quiz-service-response';
-import { QuizNotFoundError } from '../exceptions/quiz-not-found.error';
-import { RuntimeException } from '@nestjs/core/errors/exceptions';
-import { QuestionCreationError } from '../exceptions/question-creation.error';
-import { QuizDeletionError } from '../exceptions/quiz-deletion.error';
 import { QuestionInput } from './types/question-input';
-import { QuestionCouldNotBeAddedError } from '../exceptions/question-could-not-be-added.error';
 import { Question } from '../entities/question';
 import { SolveResult } from '../entities/solve-result';
 import { SolveQuizInput } from './types/solve-quiz.input';
-import { QuestionDeletionError } from '../exceptions/question-deletion.error';
+import { QuestionService } from './question.service';
 
 @Resolver((of) => Quiz)
 export class QuizResolver {
   constructor(
     @Inject(QuizService)
     private quizService: QuizService,
+    @Inject(QuestionService)
+    private questionService: QuestionService,
   ) {}
 
   @Query(() => Quiz)
   async quizById(@Args('id') id: number) {
-    const response = await this.quizService.findQuizById(id);
-    if (response.responseStatus === ResponseStatus.FAILURE) {
-      return this.handleQuizByIdQueryFailureResponse(response.info);
-    }
-    return response.quiz;
+    const quiz = await this.quizService.findQuizById(id);
+    return quiz;
   }
 
   @Query(() => [Quiz])
   async quizByTitle(@Args('title') title: string): Promise<Quiz[]> {
-    const response = await this.quizService.findQuizByTitle(title);
-    if (response.responseStatus === ResponseStatus.FAILURE) {
-      this.handleQueryQuizByTitleFailureResponse(response.info);
-    }
-    return response.quizzes;
+    const quizzes = await this.quizService.findQuizByTitle(title);
+    return quizzes;
   }
 
   @Query(() => SolveResult)
   async solveQuiz(@Args('solveQuizInput') solveQuizInput: SolveQuizInput) {
-    const results = await this.quizService.solveQuiz(
+    const solveResult = await this.quizService.solveQuiz(
       solveQuizInput.quizId,
       solveQuizInput.answers,
     );
-    return results;
+    return solveResult;
   }
 
   @Mutation((returns) => Quiz)
   async addQuiz(@Args('quiz') quizInput: QuizInput): Promise<Quiz> {
-    const response = await this.quizService.createNewQuiz(quizInput);
-    if (response.responseStatus === ResponseStatus.FAILURE) {
-      this.handleQuizCreateFailureResponse(response.info);
-    }
-    return response.quiz;
+    const quiz = await this.quizService.createNewQuiz(quizInput);
+    return quiz;
   }
 
   @Mutation((returns) => Quiz)
   async addQuestion(
     @Args('question') questionInput: QuestionInput,
   ): Promise<Quiz> {
-    const response = await this.quizService.addQuestionToQuiz(questionInput);
-    if (response.responseStatus === ResponseStatus.FAILURE) {
-      this.handleAddQuestionToQuizFailureResponse(response.info);
-    }
-    return response.quiz;
+    const quiz = await this.questionService.addQuestionToQuiz(questionInput);
+    return quiz;
+  }
+
+  @Mutation(() => Boolean)
+  async removeQuestion(@Args('id') questionId: number): Promise<boolean> {
+    return await this.questionService.deleteQuestion(questionId);
   }
 
   @Mutation(() => Quiz)
-  async removeQuestion(@Args('id') questionId: number) {
-    const response = await this.quizService.deleteQuestion(questionId);
-    if (response.responseStatus === ResponseStatus.FAILURE) {
-      this.handleQuestionDeleteFailureResponse(response.info);
-    }
-    return response.quiz;
-  }
-
-  @Mutation(() => Quiz)
-  async deleteQuiz(@Args('id') id: number): Promise<Quiz> {
-    const response = await this.quizService.deleteQuizById(id);
-    if (response.responseStatus === ResponseStatus.FAILURE) {
-      this.handleQuizDeleteFailureResponse(response.info);
-    }
-    return response.quiz;
+  async deleteQuiz(@Args('id') id: number): Promise<void> {
+    await this.quizService.deleteQuizById(id);
   }
 
   @ResolveField()
   questions(@Root() quiz: Quiz): Promise<Question[]> {
-    return this.quizService.findAllQuizQuestion(quiz.id);
-  }
-
-  private handleQuizByIdQueryFailureResponse(info: string) {
-    throw new QuizNotFoundError(info);
-  }
-
-  private handleQuizCreateFailureResponse(info: string) {
-    throw new QuestionCreationError(info);
-  }
-
-  private handleQuizDeleteFailureResponse(info: string) {
-    throw new QuizDeletionError(info);
-  }
-
-  private handleQuestionDeleteFailureResponse(info: string) {
-    throw new QuestionDeletionError(info);
-  }
-
-  private handleQueryQuizByTitleFailureResponse(info: string) {
-    throw new RuntimeException('Unknown error occurred');
-  }
-
-  private handleAddQuestionToQuizFailureResponse(info: string) {
-    throw new QuestionCouldNotBeAddedError(info);
+    return this.questionService.findAllQuizQuestion(quiz.id);
   }
 }

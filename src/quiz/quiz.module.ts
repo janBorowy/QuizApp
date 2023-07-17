@@ -6,12 +6,14 @@ import { Question } from '../entities/question';
 import { QuizService } from './quiz.service';
 import { QuizDatabaseFacade } from '../database/quiz-database-facade';
 import { QuestionDatabaseFacade } from '../database/question-database-facade';
+import { QuestionService } from './question.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Quiz, Question])],
   providers: [
     QuizResolver,
     QuizService,
+    QuestionService,
     QuizDatabaseFacade,
     QuestionDatabaseFacade,
   ],

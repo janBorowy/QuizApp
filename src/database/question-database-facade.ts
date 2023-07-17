@@ -49,6 +49,10 @@ export class QuestionDatabaseFacade {
     if (!(await this.existsQuestionInDatabaseById(questionId))) {
       throw new RecordNotFoundError(questionId);
     }
-    await this.questionRepository.delete({ id: questionId });
+    const deleteResult = await this.questionRepository.delete({
+      id: questionId,
+    });
+
+    return deleteResult.affected !== null;
   }
 }

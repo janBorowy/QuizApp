@@ -7,7 +7,7 @@ export const databaseModule = TypeOrmModule.forRoot({
   username: 'postgres',
   password: 'admin',
   database: 'quizApp',
-  synchronize: false,
+  synchronize: true,
   autoLoadEntities: true,
   retryAttempts: 3,
   retryDelay: 1000,
