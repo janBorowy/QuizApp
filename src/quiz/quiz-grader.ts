@@ -136,10 +136,19 @@ export class QuizGrader {
   }
 
   private static gradePlainQuestion(question: Question, answer: string) {
-    if (question.correctAnswerString.trim() === answer.trim()) {
+    const solutionInsensitive = this.convertForStringInsensitiveComparison(
+      question.correctAnswerString,
+    );
+    const answerInsensitive =
+      this.convertForStringInsensitiveComparison(answer);
+    if (solutionInsensitive === answerInsensitive) {
       return question.possibleScore;
     }
     return 0;
+  }
+
+  private static convertForStringInsensitiveComparison(str: string) {
+    return str.trim().toLowerCase();
   }
 
   private static gradeSortQuestion(

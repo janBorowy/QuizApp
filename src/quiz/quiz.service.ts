@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { DatabaseFacade } from '../database/database-facade';
 import { ValidationStatus } from '../validation/validation-result';
 import { RecordNotFoundError } from '../exceptions/record-not-found.error';
 import {
@@ -20,6 +19,8 @@ import { Question } from '../entities/question';
 import { SolveResult } from '../entities/solve-result';
 import { QuizGrader } from './quiz-grader';
 import { QueryFailedError } from 'typeorm';
+import { QuizDatabaseFacade } from '../database/quiz-database-facade';
+import { QuestionDatabaseFacade } from '../database/question-database-facade';
 
 @Injectable()
 export class QuizService {
@@ -28,24 +29,28 @@ export class QuizService {
     'could not find quiz with given id';
 
   constructor(
-    @Inject(DatabaseFacade)
-    private databaseFacade: DatabaseFacade,
+    @Inject(QuizDatabaseFacade)
+    private quizDatabaseFacade: QuizDatabaseFacade,
+    @Inject(QuestionDatabaseFacade)
+    private questionDatabaseFacade: QuestionDatabaseFacade,
   ) {}
 
   async findQuizById(quizId: number): Promise<QuizServiceResponse> {
-    const quiz = await this.databaseFacade.findQuizById(quizId);
+    const quiz = await this.quizDatabaseFacade.findQuizById(quizId);
     return this.createFindResponse(quiz);
   }
 
   async findAllQuizQuestion(quizId: number): Promise<Question[]> {
-    const quizzes = await this.databaseFacade.findAllQuizQuestions(quizId);
+    const quizzes = await this.questionDatabaseFacade.findAllQuizQuestions(
+      quizId,
+    );
     return quizzes;
   }
 
   async findQuizByTitle(
     quizTitle: string,
   ): Promise<QuizServiceMultipleResponse> {
-    const quiz = await this.databaseFacade.findQuizByQuery({
+    const quiz = await this.quizDatabaseFacade.findQuizByQuery({
       title: quizTitle,
     });
     return this.createFindByQueryResponse(quiz);
@@ -65,7 +70,7 @@ export class QuizService {
   async deleteQuizById(quizId: number): Promise<QuizServiceResponse> {
     let failureReason = 'unknown reason';
     try {
-      await this.databaseFacade.deleteQuizById(quizId);
+      await this.quizDatabaseFacade.deleteQuizById(quizId);
       return this.createDeleteSuccessResponse(quizId);
     } catch (error) {
       if (error instanceof RecordNotFoundError) {
@@ -95,7 +100,9 @@ export class QuizService {
 
   async solveQuiz(quizId: number, answers: string[]): Promise<SolveResult> {
     await this.checkIfQuizExists(quizId);
-    const questions = await this.databaseFacade.findAllQuizQuestions(quizId);
+    const questions = await this.questionDatabaseFacade.findAllQuizQuestions(
+      quizId,
+    );
     const results = QuizGrader.gradeQuiz(questions, answers);
     return this.transformResultsToSolveResult(questions, results);
   }
@@ -103,7 +110,7 @@ export class QuizService {
   async deleteQuestion(questionId: number) {
     let failureReason = 'unknown reason';
     try {
-      await this.databaseFacade.deleteQuestionById(questionId);
+      await this.questionDatabaseFacade.deleteQuestionById(questionId);
     } catch (error) {
       if (error instanceof RecordNotFoundError) {
         failureReason = 'Record not found in database.';
@@ -117,7 +124,7 @@ export class QuizService {
   }
 
   private async createQuiz(quiz: QuizInput): Promise<QuizServiceResponse> {
-    const savedQuiz = await this.databaseFacade.saveQuiz(quiz);
+    const savedQuiz = await this.quizDatabaseFacade.saveQuiz(quiz);
     return this.createCreateSaveSuccessResponse(savedQuiz);
   }
 
@@ -273,12 +280,14 @@ export class QuizService {
   }
 
   private async addQuestion(questionInput: QuestionInput) {
-    const quiz = await this.databaseFacade.saveQuestion(questionInput);
+    const quiz = await this.questionDatabaseFacade.saveQuestion(questionInput);
     return this.createAddQuestionSuccessResponse(quiz);
   }
 
   private async checkIfQuizExists(quizId: number) {
-    const exists = await this.databaseFacade.existsQuizInDatabaseById(quizId);
+    const exists = await this.quizDatabaseFacade.existsQuizInDatabaseById(
+      quizId,
+    );
     if (!exists) {
       throw new QuizNotFoundError("quiz with given id doesn't exist");
     }

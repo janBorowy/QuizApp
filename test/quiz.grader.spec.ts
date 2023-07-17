@@ -10,7 +10,7 @@ const firstExpectedResult = [2, 1.5, 0, 2];
 const firstAnswers = ['2', '0100', "I don't know", '2130'];
 
 const secondExpectedResult = [0, 0, 1, 1];
-const secondAnswers = ['1', '0011', 'ABC', '0132'];
+const secondAnswers = ['1', '0011', 'AbC', '0132'];
 
 const quizExample = {
   id: 1,
