@@ -1,9 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ValidationStatus } from '../validation/validation-result';
 import { Quiz } from '../entities/quiz';
 import { QuizInput } from './types/quiz-input';
 import { QuizNotFoundError } from '../exceptions/quiz-not-found.error';
-import { QuizValidator } from './quiz-validator';
 import { Question } from '../entities/question';
 import { SolveResult } from '../entities/solve-result';
 import { QuizGrader } from './quiz-grader';
@@ -32,14 +30,6 @@ export class QuizService {
     return quiz;
   }
 
-  async createNewQuiz(quiz: QuizInput): Promise<Quiz> {
-    const validationResult = this.validateQuiz(quiz);
-    if (validationResult.status == ValidationStatus.FAILURE) {
-      return null;
-    }
-    return this.createQuiz(quiz);
-  }
-
   async deleteQuizById(quizId: number): Promise<void> {
     return await this.quizDatabaseFacade.deleteQuizById(quizId);
   }
@@ -63,11 +53,6 @@ export class QuizService {
   private async createQuiz(quiz: QuizInput): Promise<Quiz> {
     const savedQuiz = await this.quizDatabaseFacade.saveQuiz(quiz);
     return savedQuiz;
-  }
-
-  private validateQuiz(quiz: QuizInput) {
-    const validator = new QuizValidator(quiz);
-    return validator.validate();
   }
 
   private async checkIfQuizExists(quizId: number) {

@@ -1,9 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ValidationStatus } from '../validation/validation-result';
 import { Quiz } from '../entities/quiz';
 import { QuizNotFoundError } from '../exceptions/quiz-not-found.error';
 import { QuestionInput } from './types/question-input';
-import { QuestionValidator } from './question-validator';
 import { QuizDatabaseFacade } from '../database/quiz-database-facade';
 import { QuestionDatabaseFacade } from '../database/question-database-facade';
 
@@ -22,20 +20,11 @@ export class QuestionService {
 
   async addQuestionToQuiz(question: QuestionInput): Promise<Quiz> {
     await this.checkIfQuizExists(question.quizId);
-    const validationResult = this.validateQuestion(question);
-    if (validationResult.status === ValidationStatus.FAILURE) {
-      return null;
-    }
     return this.addQuestion(question);
   }
 
   async deleteQuestion(questionId: number): Promise<boolean> {
     return await this.questionDatabaseFacade.deleteQuestionById(questionId);
-  }
-
-  private validateQuestion(question: QuestionInput) {
-    const validator = new QuestionValidator(question);
-    return validator.validate();
   }
 
   private async addQuestion(questionInput: QuestionInput): Promise<Quiz> {
