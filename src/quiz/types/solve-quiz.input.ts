@@ -5,6 +5,6 @@ export class SolveQuizInput {
   @Field()
   quizId: number;
 
-  @Field(() => [String])
+  @Field(() => [String], { nullable: false })
   answers: string[];
 }

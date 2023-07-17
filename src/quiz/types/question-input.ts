@@ -1,18 +1,20 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { Question, QuestionType } from '../../entities/question';
+import { Length } from 'class-validator';
 
 @InputType()
 export class QuestionInput implements Partial<Question> {
-  @Field()
+  @Field({ nullable: false })
+  @Length(5, 200)
   description: string;
 
-  @Field((type) => QuestionType)
+  @Field((type) => QuestionType, { nullable: false })
   type: QuestionType;
 
-  @Field((type) => Int)
+  @Field((type) => Int, { nullable: false })
   possibleScore: number;
 
-  @Field()
+  @Field({ nullable: false })
   correctAnswerString: string;
 
   @Field()
