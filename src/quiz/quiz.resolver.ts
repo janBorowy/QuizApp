@@ -10,19 +10,15 @@ import { Inject } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { Quiz } from '../entities/quiz';
 import { QuizInput } from './types/quiz-input';
-import { QuestionInput } from './types/question-input';
 import { Question } from '../entities/question';
 import { SolveResult } from '../entities/solve-result';
 import { SolveQuizInput } from './types/solve-quiz.input';
-import { QuestionService } from './question.service';
 
 @Resolver((of) => Quiz)
 export class QuizResolver {
   constructor(
     @Inject(QuizService)
     private quizService: QuizService,
-    @Inject(QuestionService)
-    private questionService: QuestionService,
   ) {}
 
   @Query(() => Quiz)
@@ -52,26 +48,13 @@ export class QuizResolver {
     return quiz;
   }
 
-  @Mutation((returns) => Quiz)
-  async addQuestion(
-    @Args('question') questionInput: QuestionInput,
-  ): Promise<Quiz> {
-    const quiz = await this.questionService.addQuestionToQuiz(questionInput);
-    return quiz;
-  }
-
-  @Mutation(() => Boolean)
-  async removeQuestion(@Args('id') questionId: number): Promise<boolean> {
-    return await this.questionService.deleteQuestion(questionId);
-  }
-
   @Mutation(() => Quiz)
   async deleteQuiz(@Args('id') id: number): Promise<void> {
     await this.quizService.deleteQuizById(id);
   }
 
-  @ResolveField()
+  @ResolveField((type) => Quiz)
   questions(@Root() quiz: Quiz): Promise<Question[]> {
-    return this.questionService.findAllQuizQuestion(quiz.id);
+    return this.quizService.findAllQuizQuestion(quiz.id);
   }
 }

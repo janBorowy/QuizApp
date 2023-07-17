@@ -4,7 +4,6 @@ import { Quiz } from '../entities/quiz';
 import { QuizNotFoundError } from '../exceptions/quiz-not-found.error';
 import { QuestionInput } from './types/question-input';
 import { QuestionValidator } from './question-validator';
-import { Question } from '../entities/question';
 import { QuizDatabaseFacade } from '../database/quiz-database-facade';
 import { QuestionDatabaseFacade } from '../database/question-database-facade';
 
@@ -20,13 +19,6 @@ export class QuestionService {
     @Inject(QuestionDatabaseFacade)
     private questionDatabaseFacade: QuestionDatabaseFacade,
   ) {}
-
-  async findAllQuizQuestion(quizId: number): Promise<Question[]> {
-    const quizzes = await this.questionDatabaseFacade.findAllQuizQuestions(
-      quizId,
-    );
-    return quizzes;
-  }
 
   async addQuestionToQuiz(question: QuestionInput): Promise<Quiz> {
     await this.checkIfQuizExists(question.quizId);

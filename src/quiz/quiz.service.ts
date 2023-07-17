@@ -53,6 +53,13 @@ export class QuizService {
     return this.transformResultsToSolveResult(questions, results);
   }
 
+  async findAllQuizQuestion(quizId: number): Promise<Question[]> {
+    const quizzes = await this.questionDatabaseFacade.findAllQuizQuestions(
+      quizId,
+    );
+    return quizzes;
+  }
+
   private async createQuiz(quiz: QuizInput): Promise<Quiz> {
     const savedQuiz = await this.quizDatabaseFacade.saveQuiz(quiz);
     return savedQuiz;
