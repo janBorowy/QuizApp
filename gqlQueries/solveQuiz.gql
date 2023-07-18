@@ -1,0 +1,27 @@
+query {
+  solveQuiz(solveQuizInput: {
+    quizId: 1,
+    answerInputs: [
+      {
+        answer: "2",
+        questionId: 1
+      }
+      {
+        answer: "1795",
+        questionId: 2
+      }
+      {
+        answer: "2103",
+        questionId: 3
+      }
+      {
+        answer: "0011"
+        questionId: 4
+      }
+    ]
+  }) {
+    percent
+    sum
+    results
+  }
+}

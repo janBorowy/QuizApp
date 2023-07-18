@@ -2,7 +2,9 @@
 
 1. Run dockers in `docker` folder:\
 `docker compose up -d`
-2. Run app in root folder:\
+2. Install dependencies:
+`npm install`
+3. Run app in root folder:\
 `npm run start`
 
 # Using the api
@@ -10,26 +12,20 @@
 ## Mutation 
 ### addQuiz
 - Takes QuizInput type variable and adds to database
-- Doesn't take question input
-### addQuestion
-- Takes QuestionInput type variable and adds to database
-- Quiz is associated with question by quizId variable in QuestionInput
+- Questions order won't be kept
 ### deleteQuiz
 - Deletes Quiz with given id from database
 - Cascade deletes all question associated
-### removeQuestion
-- deletes question with given id from database
 ## Query
-### quizById
+### quiz
 - fetches quiz associated with given id
 ### quizByTitle
 - fetches all quizzes with given title
 ### solveQuiz
 - Takes SolveQuizInput type
 - quizId determines which quiz user would like to solve
-- answers is array of strings, which are representation of answers chosen
-- answers array should be the same size as the amount of questions in quiz
-- answers correspond to questions at the same index in the `quiz.questions` array
+- answers is array of AnswerInputs
+- valid query should answer all questions of given quiz and should answer them once
 
 ## How to input solutions and answers
 - QuestionInput type contains variable correctAnswerString and type
@@ -71,9 +67,5 @@ example:
 - answers: [A, B, C, D]
 - solution: "3120"
 - explanation: A should be at third index, D should be at zeroth etc.
-
-### Important
-Note that number of answers for question is not restricted, keep in mind that trying to answer
-a question with incorrect string length(dependent on number of answers) will result in error.
 
 Example queries are located in `gqlQueries` folder

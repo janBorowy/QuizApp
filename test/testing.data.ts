@@ -14,19 +14,6 @@ export const exampleQuiz: Quiz = {
   createdBy: 'SomeoneOut ThereSomewhere',
   questions: [],
 };
-export const exampleQuizWithId1: Quiz = {
-  id: 1,
-  title: 'Example quiz update',
-  createdBy: 'SomeoneOut ThereSomewhere',
-  questions: [],
-};
-
-export const anotherExampleQuiz: Quiz = {
-  id: 2,
-  title: 'Another example quiz',
-  createdBy: 'Somebody Elsewhere',
-  questions: [],
-};
 
 export const singleQuestion: Question = {
   id: 1,
@@ -37,14 +24,6 @@ export const singleQuestion: Question = {
   answers: [],
   quiz: null,
   quizId: 1,
-};
-
-export const singleQuestionInput = {
-  description: 'Answer is C!',
-  type: QuestionType.SINGLE,
-  possibleScore: 2,
-  correctAnswerString: '2',
-  answers: ['a', 'b', 'c', 'd'],
 };
 
 export const multipleQuestion: Question = {
@@ -79,3 +58,33 @@ export const sortQuestion: Question = {
   quiz: null,
   quizId: 1,
 };
+
+export const exampleQuizToSolve: Quiz = {
+  id: 1,
+  title: 'examle quiz to solve',
+  createdBy: 'admin',
+  questions: [],
+};
+
+export const exampleQuizToSolveQuestions: Array<Question> = [
+  {
+    id: 3,
+    type: QuestionType.PLAIN,
+    answers: [],
+    possibleScore: 2,
+    description: 'Answer is ABC',
+    correctAnswerString: 'ABC',
+    quiz: exampleQuizToSolve,
+    quizId: 1,
+  },
+  {
+    id: 2,
+    type: QuestionType.MULTIPLE,
+    answers: ['A', 'B', 'C', 'D'],
+    possibleScore: 2,
+    description: 'Answer is A and B',
+    correctAnswerString: '1100',
+    quiz: exampleQuizToSolve,
+    quizId: 1,
+  },
+];

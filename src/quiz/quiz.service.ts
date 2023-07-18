@@ -35,6 +35,9 @@ export class QuizService {
 
   async findQuizById(quizId: number): Promise<Quiz> {
     const quiz = await this.quizDatabaseFacade.findQuizById(quizId);
+    if (quiz === null) {
+      throw new QuizNotFoundError("quiz with given id doesn't exist");
+    }
     return quiz;
   }
 
@@ -63,10 +66,13 @@ export class QuizService {
   }
 
   async findAllQuizQuestions(quizId: number): Promise<Question[]> {
-    const quizzes = await this.questionDatabaseFacade.findAllQuizQuestions(
+    const questions = await this.questionDatabaseFacade.findAllQuizQuestions(
       quizId,
     );
-    return quizzes;
+    if (questions === null) {
+      return [];
+    }
+    return questions;
   }
 
   private async checkIfQuizExists(quizId: number) {
