@@ -1,6 +1,7 @@
 import { Quiz } from '../src/entities/quiz';
 import { Question, QuestionType } from '../src/entities/question';
 import { QuizInput } from '../src/quiz/types/quiz-input';
+import { QuestionInput } from '../src/quiz/types/question-input';
 
 export const exampleQuizInput: QuizInput = {
   title: 'Example quiz',
@@ -24,6 +25,14 @@ export const singleQuestion: Question = {
   answers: [],
   quiz: null,
   quizId: 1,
+};
+
+export const singleQuestionInput: QuestionInput = {
+  description: 'Answer is C!',
+  type: QuestionType.SINGLE,
+  possibleScore: 2,
+  correctAnswerString: '2',
+  answers: [],
 };
 
 export const multipleQuestion: Question = {

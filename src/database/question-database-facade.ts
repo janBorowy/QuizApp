@@ -2,7 +2,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from '../entities/quiz';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { RecordNotFoundError } from '../exceptions/record-not-found.error';
 import { Question } from '../entities/question';
 import { QuestionInput } from '../quiz/types/question-input';
 
@@ -46,16 +45,5 @@ export class QuestionDatabaseFacade {
     return (
       (await this.questionRepository.findOneBy({ id: questionId })) != null
     );
-  }
-
-  async deleteQuestionById(questionId: number) {
-    if (!(await this.existsQuestionInDatabaseById(questionId))) {
-      throw new RecordNotFoundError(questionId);
-    }
-    const deleteResult = await this.questionRepository.delete({
-      id: questionId,
-    });
-
-    return deleteResult.affected !== null;
   }
 }
