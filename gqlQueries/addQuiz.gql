@@ -8,7 +8,6 @@ mutation {
         answers: ["Mieszko I", "Bezprym", "Bolesław I Chrobry", "Mieszko II"],
         correctAnswerString: "0011",
         possibleScore: 2
-        quizId: 1
         type: MULTIPLE
       },
       {
@@ -16,7 +15,6 @@ mutation {
         answers: [],
         correctAnswerString: "1795",
         possibleScore: 2
-        quizId: 1
         type: PLAIN
       },
       {
@@ -29,7 +27,6 @@ mutation {
           ]
           correctAnswerString: "2103"
           possibleScore: 3
-          quizId: 1
           type: SORT
       },
       {
@@ -37,7 +34,6 @@ mutation {
           answers: ["1408", "1409", "1410", "1411"],
           correctAnswerString: "2",
           possibleScore: 1
-          quizId: 1
           type: SINGLE
       }
     ]

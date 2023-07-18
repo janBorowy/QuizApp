@@ -1,5 +1,12 @@
 import { Quiz } from '../src/entities/quiz';
 import { Question, QuestionType } from '../src/entities/question';
+import { QuizInput } from '../src/quiz/types/quiz-input';
+
+export const exampleQuizInput: QuizInput = {
+  title: 'Example quiz',
+  createdBy: 'SomeoneOut ThereSomewhere',
+  questionInputs: [],
+};
 
 export const exampleQuiz: Quiz = {
   id: 1,

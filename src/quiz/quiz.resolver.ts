@@ -39,17 +39,17 @@ export class QuizResolver {
   }
 
   @Mutation((returns) => Quiz)
-  addQuiz(@Args('quiz') quizInput: QuizInput): Promise<Quiz> {
-    return this.quizService.createQuiz(quizInput);
+  async addQuiz(@Args('quiz') quizInput: QuizInput): Promise<Quiz> {
+    return await this.quizService.createQuiz(quizInput);
   }
 
   @Mutation(() => Quiz)
-  deleteQuiz(@Args('id') id: number) {
-    this.quizService.deleteQuizById(id);
+  async deleteQuiz(@Args('id') id: number) {
+    await this.quizService.deleteQuizById(id);
   }
 
   @ResolveField((type) => Quiz)
-  questions(@Root() quiz: Quiz): Promise<Question[]> {
-    return this.quizService.findAllQuizQuestions(quiz.id);
+  async questions(@Root() quiz: Quiz): Promise<Question[]> {
+    return await this.quizService.findAllQuizQuestions(quiz.id);
   }
 }

@@ -46,7 +46,7 @@ export class QuizService {
   }
 
   async deleteQuizById(quizId: number): Promise<void> {
-    return await this.quizDatabaseFacade.deleteQuizById(quizId);
+    await this.quizDatabaseFacade.deleteQuizById(quizId);
   }
 
   async solveQuiz(solveQuizInput: SolveQuizInput): Promise<SolveResult> {
