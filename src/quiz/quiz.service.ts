@@ -10,6 +10,7 @@ import { QuestionDatabaseFacade } from '../database/question-database-facade';
 import { SolveQuizInput } from './types/solve-quiz.input';
 import AnswerInput from './types/answer-input';
 import InvalidAnswerInputError from '../exceptions/invalid-answer-input.error';
+import { AnswerResult } from '../entities/answer-result';
 
 @Injectable()
 export class QuizService {
@@ -86,9 +87,11 @@ export class QuizService {
 
   private transformResultsToSolveResult(
     questions: Array<Question>,
-    results: Array<number>,
+    results: Array<AnswerResult>,
   ): SolveResult {
-    const pointsAcquired = this.sumAllArrayElements(results);
+    const pointsAcquired = this.sumAllArrayElements(
+      results.map((result) => result.pointsAcquired),
+    );
     const questionPoints = questions.map((question) => question.possibleScore);
     const possiblePointsToGain = this.sumAllArrayElements(questionPoints);
     const percentageAcquired = Math.round(

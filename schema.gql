@@ -7,6 +7,11 @@ input AnswerInput {
   questionId: Int!
 }
 
+type AnswerResult {
+  pointsAcquired: Float!
+  questionId: Float!
+}
+
 type Mutation {
   addQuiz(quiz: QuizInput!): Quiz!
   deleteQuiz(id: Float!): Quiz!
@@ -55,7 +60,7 @@ input SolveQuizInput {
 
 type SolveResult {
   percent: Float!
-  results: [Float!]!
+  results: [AnswerResult!]!
   sum: Float!
 }
 

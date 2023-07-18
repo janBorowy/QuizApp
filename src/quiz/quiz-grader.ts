@@ -1,15 +1,22 @@
 import { Question, QuestionType } from '../entities/question';
 import { InvalidQuizGraderInputError } from '../exceptions/invalid-quiz-grader-input.error';
+import { AnswerResult } from '../entities/answer-result';
 
 export class QuizGrader {
-  static gradeQuiz(questions: Question[], answers: string[]): Array<number> {
+  static gradeQuiz(
+    questions: Question[],
+    answers: string[],
+  ): Array<AnswerResult> {
     const questionAndAnswersArray = this.mergeQuestionAndAnswerArrays(
       questions,
       answers,
     );
-    const results: Array<number> = [];
+    const results: Array<AnswerResult> = [];
     questionAndAnswersArray.forEach((questionAndAnswer) => {
-      results.push(this.gradeQuestion(questionAndAnswer));
+      results.push({
+        pointsAcquired: this.gradeQuestion(questionAndAnswer),
+        questionId: questionAndAnswer.question.id,
+      });
     });
     return results;
   }

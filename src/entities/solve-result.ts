@@ -1,9 +1,10 @@
-import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
+import { AnswerResult } from './answer-result';
 
 @ObjectType()
 export class SolveResult {
-  @Field(() => [Float])
-  results: number[];
+  @Field(() => [AnswerResult])
+  results: AnswerResult[];
 
   @Field()
   sum: number;
