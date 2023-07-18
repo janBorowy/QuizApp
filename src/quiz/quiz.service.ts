@@ -7,6 +7,9 @@ import { SolveResult } from '../entities/solve-result';
 import { QuizGrader } from './quiz-grader';
 import { QuizDatabaseFacade } from '../database/quiz-database-facade';
 import { QuestionDatabaseFacade } from '../database/question-database-facade';
+import { SolveQuizInput } from './types/solve-quiz.input';
+import AnswerInput from './types/answer-input';
+import InvalidAnswerInputError from '../exceptions/invalid-answer-input.error';
 
 @Injectable()
 export class QuizService {
@@ -46,12 +49,16 @@ export class QuizService {
     return await this.quizDatabaseFacade.deleteQuizById(quizId);
   }
 
-  async solveQuiz(quizId: number, answers: string[]): Promise<SolveResult> {
+  async solveQuiz(solveQuizInput: SolveQuizInput): Promise<SolveResult> {
+    const quizId = solveQuizInput.quizId;
     await this.checkIfQuizExists(quizId);
     const questions = await this.questionDatabaseFacade.findAllQuizQuestions(
       quizId,
     );
-    const results = QuizGrader.gradeQuiz(questions, answers);
+    const answerInputs = solveQuizInput.answerInputs;
+    this.checkSolveQuizValidity(questions, answerInputs);
+    const answerStrings = answerInputs.map((answerInput) => answerInput.answer);
+    const results = QuizGrader.gradeQuiz(questions, answerStrings);
     return this.transformResultsToSolveResult(questions, results);
   }
 
@@ -92,5 +99,47 @@ export class QuizService {
     return array.reduce((partialSum, element) => {
       return partialSum + element;
     });
+  }
+
+  private sortQuestionsById(questions: Question[]) {
+    return questions.sort((first, second) => {
+      if (first.id <= second.id) {
+        return 1;
+      }
+      return -1;
+    });
+  }
+
+  private sortAnswerInputsById(answerInputs: AnswerInput[]) {
+    return answerInputs.sort((first, second) => {
+      if (first.questionId <= second.questionId) {
+        return 1;
+      }
+      return -1;
+    });
+  }
+
+  private checkSolveQuizValidity(
+    questions: Question[],
+    answerInputs: AnswerInput[],
+  ) {
+    this.sortQuestionsById(questions);
+    this.sortAnswerInputsById(answerInputs);
+    this.checkIfAllAnsweredQuestionsBelongToQuiz(questions, answerInputs);
+  }
+
+  private checkIfAllAnsweredQuestionsBelongToQuiz(
+    sortedQuestions: Question[],
+    sortedAnswers: AnswerInput[],
+  ) {
+    const questionIds = sortedQuestions.map((question) => question.id);
+    const answeredQuestionsIds = sortedAnswers.map(
+      (answer) => answer.questionId,
+    );
+    if (questionIds.toString() != answeredQuestionsIds.toString()) {
+      throw new InvalidAnswerInputError(
+        "Answered questions don't belong to quiz or don't answer all questions in a quiz",
+      );
+    }
   }
 }

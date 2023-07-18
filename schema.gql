@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AnswerInput {
+  answer: String!
+  questionId: Int!
+}
+
 type Mutation {
   addQuiz(quiz: QuizInput!): Quiz!
   deleteQuiz(id: Float!): Quiz!
@@ -44,7 +49,7 @@ input QuizInput {
 }
 
 input SolveQuizInput {
-  answers: [String!]!
+  answerInputs: [AnswerInput!]!
   quizId: Float!
 }
 

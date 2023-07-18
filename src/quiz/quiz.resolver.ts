@@ -35,11 +35,7 @@ export class QuizResolver {
 
   @Query(() => SolveResult)
   async solveQuiz(@Args('solveQuizInput') solveQuizInput: SolveQuizInput) {
-    const solveResult = await this.quizService.solveQuiz(
-      solveQuizInput.quizId,
-      solveQuizInput.answers,
-    );
-    return solveResult;
+    return await this.quizService.solveQuiz(solveQuizInput);
   }
 
   @Mutation((returns) => Quiz)
