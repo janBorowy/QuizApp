@@ -25,6 +25,8 @@ export class Quiz {
   createdBy: string;
 
   @Field((type) => [Question])
-  @OneToMany(() => Question, (question) => question.quiz)
+  @OneToMany(() => Question, (question) => question.quiz, {
+    cascade: ['update', 'insert', 'remove'],
+  })
   questions: Question[];
 }
