@@ -43,9 +43,10 @@ export class QuizResolver {
     return await this.quizService.createQuiz(quizInput);
   }
 
-  @Mutation(() => Quiz)
-  async deleteQuiz(@Args('id') id: number) {
+  @Mutation(() => Boolean)
+  async deleteQuiz(@Args('id') id: number): Promise<boolean> {
     await this.quizService.deleteQuizById(id);
+    return true;
   }
 
   @ResolveField((type) => Quiz)

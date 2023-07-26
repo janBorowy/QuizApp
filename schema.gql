@@ -9,12 +9,12 @@ input AnswerInput {
 
 type AnswerResult {
   pointsAcquired: Float!
-  questionId: Float!
+  questionId: Int!
 }
 
 type Mutation {
   addQuiz(quiz: QuizInput!): Quiz!
-  deleteQuiz(id: Float!): Quiz!
+  deleteQuiz(id: Float!): Boolean!
 }
 
 type Query {
