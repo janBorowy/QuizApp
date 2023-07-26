@@ -42,10 +42,9 @@ export class QuizDatabaseFacade {
     if (!(await this.existsQuizInDatabaseById(quizId))) {
       throw new RecordNotFoundError(quizId);
     }
-    await this.questionRepository.delete({
-      quiz: { id: quizId },
+    await this.dataSource.transaction(async (manager) => {
+      await this.quizRepository.delete(quizId);
     });
-    await this.quizRepository.delete(quizId);
   }
 
   async existsQuizInDatabaseById(quizId: number): Promise<boolean> {

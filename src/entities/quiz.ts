@@ -25,9 +25,6 @@ export class Quiz {
   createdBy: string;
 
   @Field((type) => [Question])
-  @OneToMany(() => Question, (question) => question.quiz, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => Question, (question) => question.quiz)
   questions: Question[];
 }

@@ -39,7 +39,9 @@ export class Question {
   @Column('varchar', { array: true })
   answers: string[];
 
-  @ManyToOne(() => Quiz)
+  @ManyToOne(() => Quiz, {
+    onDelete: 'CASCADE',
+  })
   quiz: Quiz;
   @RelationId((question: Question) => question.quiz)
   quizId: number;
