@@ -160,7 +160,16 @@ describe('QuizService', () => {
       const result: SolveResult = {
         sum: 4,
         percent: 100,
-        results: [2, 2],
+        results: [
+          {
+            questionId: 2,
+            pointsAcquired: 2,
+          },
+          {
+            questionId: 3,
+            pointsAcquired: 2,
+          },
+        ],
       };
 
       jest
@@ -182,11 +191,6 @@ describe('QuizService', () => {
             questionId: 2,
           },
         ],
-      };
-      const result: SolveResult = {
-        sum: 4,
-        percent: 100,
-        results: [2, 2],
       };
 
       jest
@@ -214,11 +218,6 @@ describe('QuizService', () => {
             questionId: 4,
           },
         ],
-      };
-      const result: SolveResult = {
-        sum: 4,
-        percent: 100,
-        results: [2, 2],
       };
 
       jest
@@ -249,11 +248,6 @@ describe('QuizService', () => {
             questionId: 3,
           },
         ],
-      };
-      const result: SolveResult = {
-        sum: 4,
-        percent: 100,
-        results: [2, 2],
       };
 
       jest

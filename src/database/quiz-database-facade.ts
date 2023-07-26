@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from '../entities/quiz';
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { RecordNotFoundError } from '../exceptions/record-not-found.error';
 import { QuizInput } from '../quiz/types/quiz-input';
 import { Question } from '../entities/question';
@@ -13,14 +13,19 @@ export class QuizDatabaseFacade {
     private quizRepository: Repository<Quiz>,
     @InjectRepository(Question)
     private questionRepository: Repository<Question>,
+    private dataSource: DataSource,
   ) {}
 
   async saveQuiz(quiz: QuizInput): Promise<Quiz> {
-    const savedQuiz = this.quizRepository.create({
-      ...quiz,
-      questions: [],
+    let savedQuiz: Promise<Quiz> = null;
+    await this.dataSource.transaction(async (manager) => {
+      const quiztoSave = this.quizRepository.create({
+        ...quiz,
+        questions: [],
+      });
+      savedQuiz = this.quizRepository.save(quiztoSave);
     });
-    return this.quizRepository.save(savedQuiz);
+    return savedQuiz;
   }
 
   findQuizById(quizId: number): Promise<Quiz> {

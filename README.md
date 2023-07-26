@@ -24,8 +24,9 @@
 ### solveQuiz
 - Takes SolveQuizInput type
 - quizId determines which quiz user would like to solve
-- answers is array of AnswerInputs
+- answers is an array of AnswerInputs
 - valid query should answer all questions of given quiz and should answer them once
+- result is of SolveResult type
 
 ## How to input solutions and answers
 - QuestionInput type contains variable correctAnswerString and type

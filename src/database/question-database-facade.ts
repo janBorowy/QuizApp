@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from '../entities/quiz';
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Question } from '../entities/question';
 import { QuestionInput } from '../quiz/types/question-input';
 
@@ -12,6 +12,7 @@ export class QuestionDatabaseFacade {
     private quizRepository: Repository<Quiz>,
     @InjectRepository(Question)
     private questionRepository: Repository<Question>,
+    private dataSource: DataSource,
   ) {}
 
   findAllQuizQuestions(quizId: number): Promise<Question[]> {
@@ -35,9 +36,13 @@ export class QuestionDatabaseFacade {
       ...questionInput,
       quiz,
     };
-    const question = await this.questionRepository.create(questionToAdd);
-    quiz.questions.push(question);
-    const quizPromise = this.quizRepository.save(quiz);
+    let quizPromise = null;
+    await this.dataSource.transaction(async (manager) => {
+      const question = this.questionRepository.create(questionToAdd);
+      quiz.questions.push(question);
+      quizPromise = this.quizRepository.save(quiz);
+    });
+
     return quizPromise;
   }
 

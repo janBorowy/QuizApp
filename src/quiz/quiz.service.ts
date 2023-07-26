@@ -25,11 +25,9 @@ export class QuizService {
   async createQuiz(quiz: QuizInput): Promise<Quiz> {
     const savedQuiz = await this.quizDatabaseFacade.saveQuiz(quiz);
 
-    await Promise.all(
-      quiz.questionInputs.map((questionInput) =>
-        this.questionDatabaseFacade.saveQuestion(questionInput, savedQuiz.id),
-      ),
-    );
+    for (const question of quiz.questionInputs) {
+      await this.questionDatabaseFacade.saveQuestion(question, savedQuiz.id);
+    }
 
     return this.quizDatabaseFacade.findQuizById(savedQuiz.id);
   }
@@ -60,7 +58,9 @@ export class QuizService {
       quizId,
     );
     const answerInputs = solveQuizInput.answerInputs;
-    this.checkSolveQuizValidity(questions, answerInputs);
+    this.sortQuestionsById(questions);
+    this.sortAnswerInputsById(answerInputs);
+    this.checkIfAllAnsweredQuestionsBelongToQuiz(questions, answerInputs);
     const answerStrings = answerInputs.map((answerInput) => answerInput.answer);
     const results = QuizGrader.gradeQuiz(questions, answerStrings);
     return this.transformResultsToSolveResult(questions, results);
@@ -113,28 +113,19 @@ export class QuizService {
   private sortQuestionsById(questions: Question[]) {
     return questions.sort((first, second) => {
       if (first.id <= second.id) {
-        return 1;
+        return -1;
       }
-      return -1;
+      return 1;
     });
   }
 
   private sortAnswerInputsById(answerInputs: AnswerInput[]) {
     return answerInputs.sort((first, second) => {
       if (first.questionId <= second.questionId) {
-        return 1;
+        return -1;
       }
-      return -1;
+      return 1;
     });
-  }
-
-  private checkSolveQuizValidity(
-    questions: Question[],
-    answerInputs: AnswerInput[],
-  ) {
-    this.sortQuestionsById(questions);
-    this.sortAnswerInputsById(answerInputs);
-    this.checkIfAllAnsweredQuestionsBelongToQuiz(questions, answerInputs);
   }
 
   private checkIfAllAnsweredQuestionsBelongToQuiz(
