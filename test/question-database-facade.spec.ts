@@ -9,7 +9,7 @@ import {
   singleQuestion,
   singleQuestionInput,
 } from './testing.data';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { QuestionDatabaseFacade } from '../src/database/question-database-facade';
 
 describe('QuizDatabaseFacade', () => {
@@ -33,6 +33,12 @@ describe('QuizDatabaseFacade', () => {
           useValue: {
             findOne: () => {},
             save: () => {},
+          },
+        },
+        {
+          provide: DataSource,
+          useValue: {
+            transaction: jest.fn().mockImplementation((fun) => fun()),
           },
         },
       ],

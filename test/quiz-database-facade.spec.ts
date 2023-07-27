@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Question } from '../src/entities/question';
 import { Quiz } from '../src/entities/quiz';
 import { exampleQuiz, exampleQuizInput } from './testing.data';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { RecordNotFoundError } from '../src/exceptions/record-not-found.error';
 
 describe('QuizDatabaseFacade', () => {
@@ -29,6 +29,12 @@ describe('QuizDatabaseFacade', () => {
           provide: getRepositoryToken(Question),
           useValue: {
             delete: () => {},
+          },
+        },
+        {
+          provide: DataSource,
+          useValue: {
+            transaction: jest.fn().mockImplementation((fun) => fun()),
           },
         },
       ],
