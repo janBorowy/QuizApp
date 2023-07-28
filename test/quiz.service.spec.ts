@@ -28,7 +28,6 @@ describe('QuizService', () => {
           useValue: {
             findQuizById: () => {},
             findQuizByQuery: () => {},
-            saveQuiz: () => {},
             deleteQuizById: () => {},
             existsQuizInDatabaseById: () => {},
           },
@@ -55,7 +54,6 @@ describe('QuizService', () => {
     it('Should create quiz correctly', async () => {
       const input = exampleQuizInput;
       const result = exampleQuiz;
-      jest.spyOn(quizDatabaseFacade, 'saveQuiz').mockResolvedValue(result);
       jest
         .spyOn(questionDatabaseFacade, 'saveQuestion')
         .mockImplementation(() => null);
