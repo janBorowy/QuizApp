@@ -1,9 +1,99 @@
 import { Question, QuestionType } from '../entities/question';
 import { InvalidQuizGraderInputError } from '../exceptions/invalid-quiz-grader-input.error';
 import { AnswerResult } from '../entities/answer-result';
+import { SolveQuizInput } from './types/solve-quiz.input';
+import { SolveResult } from '../entities/solve-result';
+import AnswerInput from './types/answer-input';
+import InvalidAnswerInputError from '../exceptions/invalid-answer-input.error';
+import { Inject } from '@nestjs/common';
+import { QuizService } from './quiz.service';
+import { QuizNotFoundError } from '../exceptions/quiz-not-found.error';
 
 export class QuizGrader {
-  static gradeQuiz(
+  constructor(
+    @Inject(QuizService)
+    private quizService: QuizService,
+  ) {}
+
+  async solveQuiz(solveQuizInput: SolveQuizInput): Promise<SolveResult> {
+    const quizId = solveQuizInput.quizId;
+    await this.checkIfQuizExists(quizId);
+    const questions = await this.quizService.findAllQuizQuestions(quizId);
+    const answerInputs = solveQuizInput.answerInputs;
+    this.sortQuestionsById(questions);
+    this.sortAnswerInputsById(answerInputs);
+    this.checkIfAllAnsweredQuestionsBelongToQuiz(questions, answerInputs);
+    const answerStrings = answerInputs.map((answerInput) => answerInput.answer);
+    const results = this.gradeQuiz(questions, answerStrings);
+    return this.transformResultsToSolveResult(questions, results);
+  }
+
+  private async checkIfQuizExists(quizId: number) {
+    const exists = await this.quizService.existsQuizInDatabaseById(quizId);
+    if (!exists) {
+      throw new QuizNotFoundError("quiz with given id doesn't exist");
+    }
+  }
+
+  private checkIfAllAnsweredQuestionsBelongToQuiz(
+    sortedQuestions: Question[],
+    sortedAnswers: AnswerInput[],
+  ) {
+    const questionIds = sortedQuestions.map((question) => question.id);
+    const answeredQuestionsIds = sortedAnswers.map(
+      (answer) => answer.questionId,
+    );
+    if (questionIds.toString() != answeredQuestionsIds.toString()) {
+      throw new InvalidAnswerInputError(
+        "Answered questions don't belong to quiz or don't answer all questions in a quiz",
+      );
+    }
+  }
+
+  private transformResultsToSolveResult(
+    questions: Array<Question>,
+    results: Array<AnswerResult>,
+  ): SolveResult {
+    const pointsAcquired = this.sumAllArrayElements(
+      results.map((result) => result.pointsAcquired),
+    );
+    const questionPoints = questions.map((question) => question.possibleScore);
+    const possiblePointsToGain = this.sumAllArrayElements(questionPoints);
+    const percentageAcquired = Math.round(
+      (pointsAcquired / possiblePointsToGain) * 100,
+    );
+    return {
+      results: results,
+      sum: pointsAcquired,
+      percent: percentageAcquired,
+    };
+  }
+
+  private sumAllArrayElements(array: Array<number>) {
+    return array.reduce((partialSum, element) => {
+      return partialSum + element;
+    });
+  }
+
+  private sortQuestionsById(questions: Question[]) {
+    return questions.sort((first, second) => {
+      if (first.id <= second.id) {
+        return -1;
+      }
+      return 1;
+    });
+  }
+
+  private sortAnswerInputsById(answerInputs: AnswerInput[]) {
+    return answerInputs.sort((first, second) => {
+      if (first.questionId <= second.questionId) {
+        return -1;
+      }
+      return 1;
+    });
+  }
+
+  private gradeQuiz(
     questions: Question[],
     answers: string[],
   ): Array<AnswerResult> {
@@ -21,7 +111,7 @@ export class QuizGrader {
     return results;
   }
 
-  private static mergeQuestionAndAnswerArrays(
+  private mergeQuestionAndAnswerArrays(
     questions: Array<Question>,
     answers: Array<string>,
   ) {
@@ -36,7 +126,7 @@ export class QuizGrader {
     return output;
   }
 
-  private static checkIfQuestionAndAnswerArraysAreOfSameLength(
+  private checkIfQuestionAndAnswerArraysAreOfSameLength(
     questions: Array<Question>,
     answers: Array<string>,
   ) {
@@ -47,7 +137,7 @@ export class QuizGrader {
     }
   }
 
-  private static gradeQuestion(questionAndAnswer: QuestionAndAnswer): number {
+  private gradeQuestion(questionAndAnswer: QuestionAndAnswer): number {
     let result: number;
     const question = questionAndAnswer.question;
     const answer = questionAndAnswer.answer;
@@ -68,10 +158,7 @@ export class QuizGrader {
     return result;
   }
 
-  private static gradeSingleQuestion(
-    question: Question,
-    answer: string,
-  ): number {
+  private gradeSingleQuestion(question: Question, answer: string): number {
     const answerIndex = parseInt(answer);
     if (isNaN(answerIndex)) {
       throw new InvalidQuizGraderInputError('Invalid answer input');
@@ -88,20 +175,11 @@ export class QuizGrader {
     return 0;
   }
 
-  private static gradeMultipleQuestion(
-    question: Question,
-    answer: string,
-    weighted = true,
-  ): number {
-    return weighted
-      ? this.gradeWeightedMultipleQuestion(question, answer)
-      : this.gradeNotWeightedMultipleQuestion(question, answer);
+  private gradeMultipleQuestion(question: Question, answer: string): number {
+    return this.gradeWeightedMultipleQuestion(question, answer);
   }
 
-  private static gradeWeightedMultipleQuestion(
-    question: Question,
-    answer: string,
-  ) {
+  private gradeWeightedMultipleQuestion(question: Question, answer: string) {
     const numberOfMatchingAnswers = this.getNumberOfMatchingCharacters(
       question.correctAnswerString,
       answer,
@@ -110,20 +188,7 @@ export class QuizGrader {
     return correctAnswerFactor * question.possibleScore;
   }
 
-  private static gradeNotWeightedMultipleQuestion(
-    question: Question,
-    answer: string,
-  ) {
-    if (question.correctAnswerString === answer) {
-      return question.possibleScore;
-    }
-    return 0;
-  }
-
-  private static getNumberOfMatchingCharacters(
-    first: string,
-    second: string,
-  ): number {
+  private getNumberOfMatchingCharacters(first: string, second: string): number {
     this.checkIfStringsAreOfSameLength(first, second);
     let sum = 0;
     for (let i = 0; i < first.length; ++i) {
@@ -134,7 +199,7 @@ export class QuizGrader {
     return sum;
   }
 
-  private static checkIfStringsAreOfSameLength(first: string, second: string) {
+  private checkIfStringsAreOfSameLength(first: string, second: string) {
     if (first.length !== second.length) {
       throw new InvalidQuizGraderInputError(
         'question solution and answer solution strings are of different length',
@@ -142,7 +207,7 @@ export class QuizGrader {
     }
   }
 
-  private static gradePlainQuestion(question: Question, answer: string) {
+  private gradePlainQuestion(question: Question, answer: string) {
     const solutionInsensitive = this.convertForStringInsensitiveComparison(
       question.correctAnswerString,
     );
@@ -154,37 +219,21 @@ export class QuizGrader {
     return 0;
   }
 
-  private static convertForStringInsensitiveComparison(str: string) {
+  private convertForStringInsensitiveComparison(str: string) {
     return str.trim().toLowerCase();
   }
 
-  private static gradeSortQuestion(
-    question: Question,
-    answer: string,
-    weighted = true,
-  ) {
-    return weighted
-      ? this.gradeWeightedSortQuestion(question, answer)
-      : this.gradeNotWeightedSortQuestion(question, answer);
+  private gradeSortQuestion(question: Question, answer: string) {
+    return this.gradeWeightedSortQuestion(question, answer);
   }
 
-  private static gradeWeightedSortQuestion(question: Question, answer: string) {
+  private gradeWeightedSortQuestion(question: Question, answer: string) {
     const numberOfMatchingAnswers = this.getNumberOfMatchingCharacters(
       question.correctAnswerString,
       answer,
     );
     const correctAnswerFactor = numberOfMatchingAnswers / answer.length;
     return correctAnswerFactor * question.possibleScore;
-  }
-
-  private static gradeNotWeightedSortQuestion(
-    question: Question,
-    answer: string,
-  ) {
-    if (question.correctAnswerString === answer) {
-      return question.possibleScore;
-    }
-    return 0;
   }
 }
 

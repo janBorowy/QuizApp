@@ -13,12 +13,15 @@ import { QuizInput } from './types/quiz-input';
 import { Question } from '../entities/question';
 import { SolveResult } from '../entities/solve-result';
 import { SolveQuizInput } from './types/solve-quiz.input';
+import { QuizGrader } from './quiz-grader';
 
 @Resolver((of) => Quiz)
 export class QuizResolver {
   constructor(
     @Inject(QuizService)
     private quizService: QuizService,
+    @Inject(QuizGrader)
+    private quizGrader: QuizGrader,
   ) {}
 
   @Query(() => Quiz)
@@ -35,7 +38,7 @@ export class QuizResolver {
 
   @Query(() => SolveResult)
   async solveQuiz(@Args('solveQuizInput') solveQuizInput: SolveQuizInput) {
-    return await this.quizService.solveQuiz(solveQuizInput);
+    return await this.quizGrader.solveQuiz(solveQuizInput);
   }
 
   @Mutation((returns) => Quiz)
