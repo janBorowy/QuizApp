@@ -6,6 +6,9 @@ import {
   sortQuestion,
 } from './testing.data';
 import { AnswerResult } from '../src/entities/answer-result';
+import { Test, TestingModule } from '@nestjs/testing';
+import { QuizService } from '../src/quiz/quiz.service';
+import AnswerInput from '../src/quiz/types/answer-input';
 
 const firstExpectedResult: AnswerResult[] = [
   {
@@ -25,7 +28,24 @@ const firstExpectedResult: AnswerResult[] = [
     pointsAcquired: 2,
   },
 ];
-const firstAnswers = ['2', '0100', "I don't know", '2130'];
+const firstAnswers: AnswerInput[] = [
+  {
+    answer: '2',
+    questionId: 1,
+  },
+  {
+    answer: '0100',
+    questionId: 2,
+  },
+  {
+    answer: 'I don\'t know"',
+    questionId: 3,
+  },
+  {
+    answer: '2130',
+    questionId: 4,
+  },
+];
 
 const secondExpectedResult: AnswerResult[] = [
   {
@@ -45,7 +65,24 @@ const secondExpectedResult: AnswerResult[] = [
     pointsAcquired: 1,
   },
 ];
-const secondAnswers = ['1', '0011', 'AbC', '0132'];
+const secondAnswers: AnswerInput[] = [
+  {
+    answer: '1',
+    questionId: 1,
+  },
+  {
+    answer: '0011',
+    questionId: 2,
+  },
+  {
+    answer: 'AbC',
+    questionId: 3,
+  },
+  {
+    answer: '0132',
+    questionId: 4,
+  },
+];
 
 const quizExample = {
   id: 1,
@@ -55,13 +92,54 @@ const quizExample = {
 };
 
 describe('QuizGrader', () => {
-  it('Should grade first quiz attempt correctly', () => {
-    const result = QuizGrader.gradeQuiz(quizExample.questions, firstAnswers);
-    expect(result).toEqual(firstExpectedResult);
+  let quizGrader: QuizGrader;
+  let quizService: QuizService;
+
+  beforeEach(async () => {
+    const testingModule: TestingModule = await Test.createTestingModule({
+      providers: [
+        QuizGrader,
+        {
+          provide: QuizService,
+          useValue: {
+            findAllQuizQuestions: () => {},
+            existsQuizInDatabaseById: () => {},
+          },
+        },
+      ],
+    }).compile();
+
+    quizGrader = testingModule.get<QuizGrader>(QuizGrader);
+    quizService = testingModule.get<QuizService>(QuizService);
   });
 
-  it('Should grade second quiz attempt correctly', () => {
-    const result = QuizGrader.gradeQuiz(quizExample.questions, secondAnswers);
-    expect(result).toEqual(secondExpectedResult);
+  describe('solveQuiz', () => {
+    it('Should grade first quiz attempt correctly', async () => {
+      jest
+        .spyOn(quizService, 'findAllQuizQuestions')
+        .mockResolvedValue(quizExample.questions);
+      jest
+        .spyOn(quizService, 'existsQuizInDatabaseById')
+        .mockResolvedValue(true);
+      const result = await quizGrader.solveQuiz({
+        quizId: quizExample.id,
+        answerInputs: firstAnswers,
+      });
+      expect(result.results).toEqual(firstExpectedResult);
+    });
+
+    it('Should grade second quiz attempt correctly', async () => {
+      jest
+        .spyOn(quizService, 'findAllQuizQuestions')
+        .mockResolvedValue(quizExample.questions);
+      jest
+        .spyOn(quizService, 'existsQuizInDatabaseById')
+        .mockResolvedValue(true);
+      const result = await quizGrader.solveQuiz({
+        quizId: quizExample.id,
+        answerInputs: secondAnswers,
+      });
+      expect(result.results).toEqual(secondExpectedResult);
+    });
   });
 });
