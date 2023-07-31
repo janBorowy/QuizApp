@@ -4,6 +4,8 @@ export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(
   () => ({
     create: jest.fn(),
     save: jest.fn(),
+    findOneBy: jest.fn(),
+    findBy: jest.fn(),
   }),
 );
 
